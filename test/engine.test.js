@@ -114,3 +114,8 @@ test('team mentality: plan start point, one notch per strength/away tweak, clamp
   assert.equal(r({style:'through',strength:'weaker',venue:'away'}).mine.mood,'Attacking');
   for(const k of Object.keys(PLANS))assert.ok(recommend(base,k).mine.mood,k);
 });
+
+test('their 4-2-4 out of possession -> three central players and counter settings', () => {
+  const x=recommend({...base,oopShape:'4-2-4'});
+  assert.equal(x.mine.ip,'4-3-3 or 4-2-3-1');assert.equal(x.set['Attacking Transition'],'Counter-Attack');
+});
