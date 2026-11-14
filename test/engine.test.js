@@ -15,13 +15,13 @@ test('possession side -> plan A without pressing legs, B with, never B vs a stro
   assert.equal(r({style:'possession',canPress:true,strength:'stronger'}).plan,'possessionA');
 });
 test('attacking 4-2-4 -> Route One plan', () => assert.equal(r({formation:'4-2-4',mentality:'attacking'}).plan,'route'));
-test('defensive 5-4-1 -> Park the Bus plan', () => assert.equal(r({formation:'5-4-1',mentality:'defensive'}).plan,'bus'));
+test('defensive 5-4-1 -> Park the Bus plan', () => assert.equal(r({formation:'5-4-1',mentality:'defensive'}).plan,'busA'));
 test('every playstyle picks its own tab', () => {
   for(const k of TABS)assert.ok(recommend({...base,style:k}).plan.startsWith(k),k);
   assert.equal(recommend(base,'possession').plan,'possessionA');assert.equal(recommend({...base,canPress:true},'possession').plan,'possessionB');
 });
 test('count the middle warns when outnumbered', () => {
-  const x=r({formation:'3-4-2-1',style:'bus',mentality:'defensive'}); // bus plan OOP 4-4-2 (2) vs their 4
+  const x=r({formation:'3-4-2-1',style:'bus',mentality:'defensive',canPress:true}); // bus plan B OOP 4-4-2 (2) vs their 4
   assert.ok(x.warns.some(w=>w.includes('4-4-2')));
   assert.equal(r({formation:'4-4-2',mentality:'attacking'}).warns.length,0);
 });
@@ -70,7 +70,7 @@ test('scout report: where they score decides crosses vs stepping up', () => {
 test('scout report: set pieces, and overrides of the plan are reported', () => {
   assert.equal(r({setPieces:true}).set['Play for Set Pieces'],'Play for Set Pieces');
   const x=r({mentality:'defensive',formation:'5-4-1',weakAir:true}); // bus plan says Low Crosses
-  assert.equal(x.plan,'bus');assert.equal(x.set['Crossing Style'],'Floated Crosses');
+  assert.equal(x.plan,'busA');assert.equal(x.set['Crossing Style'],'Floated Crosses');
   assert.ok(x.clashes.some(c=>c.startsWith('Crossing Style: Floated Crosses (Weak in the air) replaces Low Crosses (plan)')));
 });
 test('every scout answer only sets real instructions', () => {
@@ -117,7 +117,7 @@ test('team mentality: plan start point, one notch per strength/away tweak, clamp
   assert.equal(r({style:'vtiki',strength:'stronger',venue:'away'}).mine.mood,'Defensive');
   assert.equal(r({style:'vtiki',strength:'weaker',venue:'away'}).mine.mood,'Positive');
   for(const k of Object.keys(PLANS))assert.notEqual(r({style:k.replace(/[AB]$/,''),strength:'stronger',venue:'away'}).mine.mood,'Very Defensive',k); // never pre-match
-  for(const m of ['veryDefensive','cautious'])assert.equal(r({formation:'5-4-1',mentality:m}).plan,'bus');
+  for(const m of ['veryDefensive','cautious'])assert.equal(r({formation:'5-4-1',mentality:m}).plan,'busA');
   assert.equal(r({formation:'4-2-4',mentality:'veryAttacking'}).plan,'route');
   for(const k of Object.keys(PLANS))assert.ok(recommend(base,k).mine.mood,k);
 });
@@ -181,4 +181,15 @@ test('4-4-1-1 OOP warns about Work Rate unless the squad has pressing legs', () 
   assert.equal(r({formation:'4-3-3'}).mine.oop,'4-4-1-1');
   assert.ok(w(r({formation:'4-3-3'})));assert.ok(!w(r({formation:'4-3-3',canPress:true})));
   assert.ok(!w(r({formation:'4-4-2'})));
+});
+
+test('Park the Bus and Catenaccio: Plan B (press) only with pressing legs, never vs a stronger side', () => {
+  for(const k of ['bus','catenaccio']){
+    const a=r({style:k}),b=r({style:k,canPress:true});
+    assert.equal(a.plan,k+'A');assert.equal(b.plan,k+'B');assert.equal(r({style:k,canPress:true,strength:'stronger'}).plan,k+'A');
+    assert.equal(a.set['Line of Engagement'],'Mid Block');assert.equal(a.set['Defensive Transition'],'Regroup');assert.equal(a.set['Trigger Press'],undefined);
+    assert.equal(b.set['Line of Engagement'],'High Press');assert.equal(b.set['Defensive Transition'],'Counter-Press');
+    assert.equal(a.set['Attacking Width'],b.set['Attacking Width']); // same attack
+    assert.equal(recommend({...base,style:k},k+'B').plan,k+'B'); // tab click
+  }
 });
