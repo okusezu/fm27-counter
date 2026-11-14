@@ -18,6 +18,12 @@ The setup sheet: every Team Instruction, with the setting to pick highlighted.
 
 ![Setup sheet with the recommended Team Instructions highlighted](screenshots/setup-sheet.png)
 
+## Notes
+
+notetaking match engine experience for counters ⭐
+
+[![Flicking through the notebook of match engine notes behind the counters (click to play)](media/notetaking.jpg)](https://github.com/okusezu/fm27-counter/blob/main/media/notetaking.mp4)
+
 ## Use it
 
 **[Open it in your browser](https://okusezu.github.io/fm27-counter/)**, or download [`index.html`](https://raw.githubusercontent.com/okusezu/fm27-counter/main/index.html) (right-click → Save link as) and double-click it. It's one file, works offline, and needs no install.
