@@ -193,3 +193,9 @@ test('Park the Bus and Catenaccio: Plan B (press) only with pressing legs, never
     assert.equal(recommend({...base,style:k},k+'B').plan,k+'B'); // tab click
   }
 });
+test('5-3-2 DM WB in possession + 5-2-1-2 DM AM out of possession', () => {
+  const x=r({formation:'5-3-2 DM WB',oopShape:'5-2-1-2 DM AM'});
+  assert.equal(x.mine.ip,'4-3-3');assert.equal(x.mine.oop,'4-1-4-1');assert.equal(x.warns.length,0);
+  assert.equal(x.shape.weak,'Wing-backs carry the whole flank alone');
+  assert.equal(r({formation:'5-3-2 DM WB',mentality:'defensive'}).ranked.find(p=>p.key.startsWith('catenaccio')).reasons.some(w=>w.includes('5-3-2 DM WB')),true);
+});

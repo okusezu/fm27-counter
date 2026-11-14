@@ -205,6 +205,9 @@ const SHAPES={
   '3-4-3':{mid:2,weak:'Space behind the wing-backs',ip:'4-4-2',oop:'4-4-2',why:'Back three: two strikers occupy their CBs'},
   '5-2-1-2 DM AM':{mid:3,weak:'Wing-backs carry the whole flank alone',ip:'4-3-3',oop:'4-1-4-1',
     why:'Narrow, width only from the wing-backs: wingers + full-backs make 2v1s on each flank, three CMs match their two DMs + AM, and the DM screens their AM and two strikers'},
+  // 5-3-2 DM WB: weak spot = the sheet's 3-5-2 row (same three CMs + wing-backs); counter as 5-2-1-2 DM AM (own).
+  '5-3-2 DM WB':{mid:3,weak:'Wing-backs carry the whole flank alone',ip:'4-3-3',oop:'4-1-4-1',
+    why:'Narrow, width only from the wing-backs: wingers + full-backs make 2v1s on each flank, three CMs match their DM + two CMs, and the DM screens their two strikers'},
   '5-2-3 Wide':{mid:2,weak:'Space behind the wing-backs',ip:'4-4-2',oop:'4-4-2',
     why:'Back three: two strikers occupy their CBs. Their wing-backs + wingers double up on both flanks - if they live on crosses, set their style to Wing play'},
   '3-4-2-1':{mid:4,weak:'Space behind the wing-backs',ip:'4-3-3',oop:'4-1-4-1',why:'No.10-heavy shape: your DM blocks passes between the lines'},
@@ -298,6 +301,10 @@ const OOPS={
   '5-4-1':{weak:SHAPES['5-4-1'].weak,ip:'2-3-5 / 3-2-5 - five across the front pins all their defenders',
     tips:['Win it straight back when you lose it - they have few out balls','Width stretches the back five','Rest defence: 2 CBs + DM stay home'],
     set:{'Attacking Width':'Wider','Patience':'Work Ball Into Box','Defensive Transition':'Counter-Press'}},
+  // 5-2-1-2 DM AM (wing-backs level with the two DMs): weak spot from the sheet's back-three rows, rest own.
+  '5-2-1-2 DM AM':{weak:'Space behind the wing-backs - only three CBs behind the ball',ip:'4-3-3 - wingers run in behind their wing-backs',
+    tips:['Switch play quickly to the flank before their wing-back gets back','Their two strikers + AM stay up: keep 2 CBs + DM home','Their AM sits on your DM - a second midfielder dropping in gives you the out ball'],
+    set:{'Attacking Width':'Wider','Pass Reception':'Pass Into Space'}},
   '5-3-2':{weak:SHAPES['5-3-2'].weak,ip:'4-3-3 or 3-4-2-1 - wide players attack the space in front of their wing-backs',
     tips:['Go round their three central midfielders, not through them','Get your wingers on the ball in front of their wing-backs','Overlaps turn it into 2v1s on the flank'],
     set:{'Attacking Width':'Wider','Supporting Runs':'Both Flanks'}},
@@ -384,7 +391,7 @@ function score(o){
   if(['4-2-4','2-3-5','3-4-3','4-4-2'].includes(o.formation))add('route',2,`${o.formation} commits players forward`);
   if(defensive)add('bus',3,'Defensive mentality');
   if(['5-4-1','5-3-2'].includes(o.formation))add('bus',2,`${o.formation} is a deep block`);
-  if(defensive&&['3-5-2','5-3-2','3-4-2-1','5-2-1-2 DM AM'].includes(o.formation))add('catenaccio',2,`Defensive with a back three (${o.formation})`);
+  if(defensive&&['3-5-2','5-3-2','3-4-2-1','5-2-1-2 DM AM','5-3-2 DM WB'].includes(o.formation))add('catenaccio',2,`Defensive with a back three (${o.formation})`);
   if(o.engage==='low')add('bus',1,'Low Block');
   if(o.engage==='high')add('gegen',1,'High Press');
   if(o.line==='lower'||o.line==='muchLower')add('bus',1,'Deep defensive line');
