@@ -31,6 +31,7 @@ th,td{text-align:left;padding:3px 8px;border-bottom:1px solid var(--line)}th{col
 .tabs{display:flex;gap:2px;overflow-x:auto;padding:0 6px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 .tab{flex:0 0 auto;border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;background:var(--bg);color:var(--soft);padding:6px 8px;margin-bottom:-1px;white-space:nowrap;font-size:12px}
 .tab:hover{color:var(--ink)}
+.tab.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:700}
 .tab.label{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700;letter-spacing:.05em}
 .box.tabbed{border-top-left-radius:0}
 button{font:inherit;background:none;border:1px solid var(--line);color:var(--accent);padding:2px 8px;cursor:pointer}
@@ -423,9 +424,10 @@ function render(){
   const o=read();try{localStorage.setItem(KEY,JSON.stringify(o));}catch{}
   const r=recommend(o,force),P=PLANS[r.plan],poss=r.plan.startsWith('possession');
   // One orange tab naming the playstyle being countered (theirs, or the best guess when 'Not sure');
-  // Control Possession also gets a tab for its other plan (A: block + counter, B: high press).
-  const other=r.plan==='possessionA'?'possessionB':'possessionA',ab=k=>k==='possessionA'?'PLAN A: BLOCK + COUNTER':'PLAN B: HIGH PRESS';
-  out.innerHTML=`<div><div class="tabs"><span class="tab label">${esc(STYLE_NAME[poss?'possession':r.plan].toUpperCase())}${poss?' · '+ab(r.plan).split(':')[0]:''}</span>${poss?`<button type="button" class="tab" data-plan="${other}">${ab(other)}</button>`:''}</div>
+  // Control Possession also shows both its plans as tabs (A: block + counter, B: high press); the one shown is inverted.
+  const ab={possessionA:'PLAN A: BLOCK + COUNTER',possessionB:'PLAN B: HIGH PRESS'};
+  out.innerHTML=`<div><div class="tabs"><span class="tab label">${esc(STYLE_NAME[poss?'possession':r.plan].toUpperCase())}</span>${poss?Object.keys(ab).map(k=>
+    `<button type="button" class="tab${k===r.plan?' on':''}" data-plan="${k}" aria-pressed="${k===r.plan}">${ab[k]}</button>`).join(''):''}</div>
   <div class="box tabbed">
     <h2 class="oppo">ASSESSING THE OPPOSITION&#39;S WEAKNESS</h2>
     <h2>${P.name}</h2>
