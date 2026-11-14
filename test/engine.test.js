@@ -102,3 +102,8 @@ test('home/away: drop a notch away unless they are weaker', () => {
   assert.ok(awayWeak.tweaks.some(t=>t.text.startsWith('Away to a weaker side')));assert.ok(!awayWeak.tweaks.some(t=>t.text.startsWith('Mentality one notch lower than at home')));
   assert.ok(home.tweaks.some(t=>t.why==='Home'));
 });
+test('5-2-1-2 DM AM: attack the lone wing-backs, 4-1-4-1 matches their three central players', () => {
+  const x=r({formation:'5-2-1-2 DM AM'});
+  assert.equal(x.mine.ip,'4-3-3');assert.equal(x.mine.oop,'4-1-4-1');assert.equal(x.warns.length,0);
+  assert.equal(x.shape.weak,'Wing-backs carry the whole flank alone');
+});
