@@ -4,7 +4,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
 const src=html.match(/<script id="engine">([\s\S]*?)<\/script>/)[1];
 const {recommend,PLANS,TI,SETS,OOPS,TWEAKS,TABS}=vm.runInNewContext(src+'\n;({recommend,PLANS,TI,SETS,OOPS,TWEAKS,TABS})');
-const base={formation:'4-4-2',mentality:'balanced',style:'unknown',press:'mid',line:'standard',strength:'even',dribblers:false,weakPassers:false,canPress:false};
+const base={formation:'4-4-2',mentality:'balanced',style:'unknown',line:'standard',strength:'even',dribblers:false,weakPassers:false,canPress:false};
 const r=o=>recommend({...base,...o});
 const opts=Object.fromEntries(TI.map(t=>[t.name,t.opts]));
 const checkSet=s=>{for(const[k,v]of Object.entries(s)){assert.ok(opts[k],`unknown instruction ${k}`);assert.ok(opts[k].includes(v),`${k}: ${v}`);}};
@@ -26,8 +26,8 @@ test('count the middle warns when outnumbered', () => {
   assert.equal(r({formation:'4-4-2',mentality:'attacking'}).warns.length,0);
 });
 test('opponent tweaks fire from inputs', () => {
-  const t=r({press:'high',line:'high',weakPassers:true,dribblers:true}).tweaks.map(x=>x.text).join('|');
-  for(const s of ['Bypass press','Pass Reception','Short Goalkeeper Distribution','Tackling'])assert.ok(t.includes(s),s);
+  const t=r({trigger:'more',line:'high',weakPassers:true,dribblers:true}).tweaks.map(x=>x.text).join('|');
+  for(const s of ['Bypass Press','Pass Reception','Short Goalkeeper Distribution','Tackling'])assert.ok(t.includes(s),s);
 });
 test('every plan has a shape, settings, and the force switch works', () => {
   for(const k of Object.keys(PLANS)){assert.ok(PLANS[k].ipShape&&PLANS[k].oop&&PLANS[k].tab,k);assert.ok(SETS[k],k);assert.equal(recommend(base,k).plan,k);}
@@ -40,7 +40,7 @@ test('wing play -> Wing Play plan with back-five OOP', () => {
 test('every plan, tweak and shape-counter setting names a real instruction and option', () => {
   for(const s of Object.values(SETS))checkSet(s);
   for(const c of Object.values(OOPS))checkSet(c.set);
-  checkSet(r({press:'high',line:'high',weakPassers:true,dribblers:true}).set);
+  checkSet(r({trigger:'more',line:'high',weakPassers:true,dribblers:true}).set);
 });
 test('setup sheet follows the plan and tweaks', () => {
   assert.equal(r({style:'possession',canPress:true}).set['Line of Engagement'],'High Press');
@@ -51,14 +51,14 @@ test('their OOP shape fills gaps in the setup sheet, plan wins clashes', () => {
   const x=r({style:'vtiki',oopShape:'4-1-4-1'}); // plan sets More Direct; leaves Build-Up Strategy alone
   assert.equal(x.set['Build-Up Strategy'],'Play Through Press');
   assert.equal(x.clashes.map(c=>c.split(':')[0]).join(),'Passing Directness');
-  assert.equal(r({style:'vtiki',oopShape:'4-1-4-1',press:'high'}).set['Build-Up Strategy'],'Bypass Press'); // tweak wins
+  assert.equal(r({style:'vtiki',oopShape:'4-1-4-1',trigger:'more'}).set['Build-Up Strategy'],'Bypass Press'); // tweak wins
   assert.equal(r({style:'vtiki',oopShape:'5-4-1'}).set['Attacking Width'],'Wider');
   assert.equal(r({}).oopC,null);
 });
 test('Bypass press only when they press (PDF: "if they press you")', () => {
   for(const style of ['possession','vtiki'])for(const canPress of [false,true]){
     assert.equal(r({style,canPress}).set['Build-Up Strategy'],undefined);
-    assert.equal(r({style,canPress,press:'high'}).set['Build-Up Strategy'],'Bypass Press');
+    assert.equal(r({style,canPress,trigger:'more'}).set['Build-Up Strategy'],'Bypass Press');
   }
 });
 test('scout report: where they score decides crosses vs stepping up', () => {
@@ -125,7 +125,7 @@ test('their 4-2-4 out of possession -> three central players and counter setting
 });
 
 test('a chosen playstyle wins even when everything else points elsewhere', () => {
-  const deep={formation:'5-4-1',mentality:'defensive',line:'deep',press:'high'};
+  const deep={formation:'5-4-1',mentality:'defensive',line:'deep',trigger:'more'};
   for(const k of TABS)assert.ok(r({...deep,style:k}).plan.startsWith(k),k);
   for(const k of TABS)assert.ok(r({formation:'4-2-4',mentality:'attacking',line:'high',style:k}).plan.startsWith(k),k);
 });

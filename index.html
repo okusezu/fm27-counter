@@ -60,8 +60,7 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
     <option value="route">Route One</option><option value="fluid">Fluid Counter-Attack</option>
     <option value="direct">Direct Counter-Attack</option><option value="catenaccio">Catenaccio</option>
     <option value="bus">Park the Bus</option></select></label>
-  <label>How often they trigger the press<select name="trigger"><option value="">Not sure</option><option value="less">Less Often</option><option value="balanced">Balanced</option><option value="more">More Often</option><option value="muchMore">Much More Often</option></select></label>
-  <label>Their pressing<select name="press"><option value="low">Low</option><option value="mid" selected>Mid</option><option value="high">High</option></select></label>
+  <label>Pressing intensity<select name="trigger"><option value="">Not sure</option><option value="less">Less Often</option><option value="balanced">Balanced</option><option value="more">More Often</option><option value="muchMore">Much More Often</option></select></label>
   <label>Their defensive line<select name="line"><option value="deep">Deep</option><option value="standard" selected>Standard</option><option value="high">High</option></select></label>
   <label>Compared to you, they are<select name="strength"><option value="weaker">Weaker</option><option value="even" selected>About even</option><option value="stronger">Stronger</option></select></label>
   <label>Home or away?<select name="venue"><option value="">Not sure</option><option value="home">Home</option><option value="away">Away</option></select></label>
@@ -269,12 +268,11 @@ const MID={...Object.fromEntries(Object.entries(SHAPES).map(([k,v])=>[k,v.mid]))
 // questions on the form: a tick box, or a dropdown when several entries share a key with a `value`.
 // own:true = worked out here, not from the cheat sheets.
 const TWEAKS=[
-  {when:o=>o.press==='high',text:'Buildup Strategy: Bypass press',why:'They press high',set:{'Build-Up Strategy':'Bypass Press'}},
   // Their Trigger Press setting (same options as yours).
-  {when:o=>o.trigger==='more'||o.trigger==='muchMore',text:'Move it before they close in: Build-Up Strategy Bypass Press, GK Distribution (Speed) Distribute Quickly',why:'They trigger the press often',own:true,
+  {when:o=>o.trigger==='more'||o.trigger==='muchMore',text:'Build-Up Strategy: Bypass Press; GK Distribution (Speed): Distribute Quickly - move it before they close in',why:'They press often',
     set:{'Build-Up Strategy':'Bypass Press','GK Distribution (Speed)':'Distribute Quickly'}},
-  {when:o=>o.trigger==='muchMore',text:'Pressing that hard tires them: from 60 min, more balls in behind and fresh legs up front',why:'They trigger the press much more often',own:true},
-  {when:o=>o.trigger==='less',text:'Time on the ball: Build-Up Strategy Play Through Press - pass out from the back',why:'They rarely trigger the press',own:true,
+  {when:o=>o.trigger==='muchMore',text:'Pressing that hard tires them: from 60 min, more balls in behind and fresh legs up front',why:'They press much more often',own:true},
+  {when:o=>o.trigger==='less',text:'Time on the ball: Build-Up Strategy Play Through Press - pass out from the back',why:'They rarely press',own:true,
     set:{'Build-Up Strategy':'Play Through Press'}},
   {when:o=>o.line==='high',text:'Pass Reception: into space behind their line; ST as Channel Forward',why:'They play a high line',set:{'Pass Reception':'Pass Into Space'}},
   {when:o=>o.strength==='stronger',text:'Mentality one notch lower; consider Low Block with 5-4-1 OOP',why:'Stronger opponent (5-4-1: protecting a lead, stronger opponents)',mood:-1},
@@ -327,7 +325,7 @@ function score(o){
   if(o.mentality==='defensive'&&['3-5-2','5-3-2','3-4-2-1','5-2-1-2 DM AM'].includes(o.formation))add('catenaccio',2,`Defensive with a back three (${o.formation})`);
   if(o.line==='deep')add('bus',1,'Deep defensive line');
   if(o.line==='high')add('possession',1,'High defensive line to play in behind');
-  if(o.press==='high')add('gegen',2,'High press: bypass it and run in behind');
+  if(o.trigger==='more'||o.trigger==='muchMore')add('gegen',2,'Presses often: bypass it and run in behind');
   if(o.style==='unknown'&&o.mentality==='balanced')add('vtiki',1,'No clear style: mid block and counter is the safe default');
   return Object.entries(s).map(([k,r])=>({key:k,total:r.reduce((a,x)=>a+x[0],0),reasons:r.map(x=>x[1])}))
     .sort((a,b)=>b.total-a.total);
