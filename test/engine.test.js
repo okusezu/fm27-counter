@@ -35,6 +35,7 @@ test('every plan has a shape, settings, and the force switch works', () => {
 test('wing play -> Wing Play plan with back-five OOP', () => {
   const x=r({style:'wing',formation:'4-4-2'});
   assert.equal(x.plan,'wing');assert.equal(x.oop,'5-4-1');
+  assert.equal(x.set['Progress Through'],'Middle'); // they Trap Outside
 });
 test('every plan, tweak and shape-counter setting names a real instruction and option', () => {
   for(const s of Object.values(SETS))checkSet(s);
