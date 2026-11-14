@@ -20,6 +20,8 @@ The setup sheet: every Team Instruction, with the setting to pick highlighted.
 
 ## Notes
 
+⚽ *reading opposition reports is essential to get the best results out of this tool*
+
 notetaking match engine experience for counters ⭐
 
 [![Flicking through the notebook of match engine notes behind the counters (click to play)](media/notetaking.jpg)](https://okusezu.github.io/fm27-counter/media/notetaking.mp4)
