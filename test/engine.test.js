@@ -168,3 +168,10 @@ test('their tempo', () => {
   assert.ok(!r({tempo:'standard'}).tweaks.some(t=>/tempo/.test(t.why)));
   checkSet(r({tempo:'lower'}).set);checkSet(r({tempo:'higher'}).set);
 });
+
+test('their passing directness', () => {
+  for(const directness of ['shorter','muchShorter'])assert.equal(r({directness}).set['Trigger Press'],'More Often');
+  for(const directness of ['moreDirect','muchMoreDirect'])assert.equal(r({directness}).set['Defensive Line Behaviour'],'Drop Off More');
+  assert.ok(!r({directness:'standard'}).tweaks.some(t=>/pass short|play direct/.test(t.why)));
+  checkSet(r({directness:'shorter'}).set);checkSet(r({directness:'moreDirect'}).set);
+});

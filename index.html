@@ -68,6 +68,7 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
     <option value="bus">Park the Bus</option></select></label>
   <label>Pressing intensity<select name="trigger"><option value="">Not sure</option><option value="less">Less Often</option><option value="balanced">Balanced</option><option value="more">More Often</option><option value="muchMore">Much More Often</option></select></label>
   <label>Their line of engagement<select name="engage"><option value="low">Low Block</option><option value="mid" selected>Mid Block</option><option value="high">High Press</option></select></label>
+  <label>Their passing directness<select name="directness"><option value="muchShorter">Much Shorter</option><option value="shorter">Shorter</option><option value="standard" selected>Standard</option><option value="moreDirect">More Direct</option><option value="muchMoreDirect">Much More Direct</option></select></label>
   <label>Their tempo<select name="tempo"><option value="muchLower">Much Lower</option><option value="lower">Lower</option><option value="standard" selected>Standard</option><option value="higher">Higher</option><option value="muchHigher">Much Higher</option></select></label>
   <label>Their defensive line<select name="line"><option value="muchLower">Much Lower</option><option value="lower">Lower</option><option value="standard" selected>Standard</option><option value="higher">Higher</option><option value="muchHigher">Much Higher</option></select></label>
   <label>Their defensive line behaviour<select name="lineBehaviour"><option value="stepUp">Step Up More</option><option value="balanced" selected>Balanced</option><option value="dropOff">Drop Off More</option></select></label>
@@ -189,7 +190,7 @@ const SHAPES={
 // Every Team Instruction. Labels: fmscout FM26 guide (pre-release); ok:true = seen in FM27 tactic posts.
 // Wrong label in your game? Fix it here; the test checks every plan setting still exists.
 const TI=[
-  ['In possession','Passing Directness',['Much Shorter','Shorter','Balanced','More Direct','Much More Direct']],
+  ['In possession','Passing Directness',['Much Shorter','Shorter','Standard','More Direct','Much More Direct']],
   ['In possession','Tempo',['Much Lower','Lower','Standard','Higher','Much Higher']],
   ['In possession','Time Wasting',['Less Often','Standard','More Often']],
   ['In possession','Attacking Transition',['Counter-Attack','Standard','Patient Build-Up'],true],
@@ -291,6 +292,10 @@ const TWEAKS=[
   // other team control possession and its counters start further from goal.
   {when:o=>o.engage==='high',text:'Build-Up Strategy: Bypass Press - go over their press; beat it once and you attack an open pitch',why:'They engage with a High Press',own:true,set:{'Build-Up Strategy':'Bypass Press'}},
   {when:o=>o.engage==='low',text:'Attacking Width: Wider, Patience: Work Ball Into Box - they let you have the ball and their final third is compact; their counters start far from your goal',why:'They sit in a Low Block',own:true,set:{'Attacking Width':'Wider','Patience':'Work Ball Into Box'}},
+  // Their Passing Directness, from the game's staff feedback: shorter needs technical precision and gives the other team
+  // time to regroup; more direct tests the defence with long balls into the forwards and needs strong physical qualities.
+  {when:o=>o.directness==='shorter'||o.directness==='muchShorter',text:'Trigger Press: More Often - short passing needs precision, so pressure forces mistakes; you get time to regroup when you lose it',why:'They pass short',own:true,set:{'Trigger Press':'More Often'}},
+  {when:o=>o.directness==='moreDirect'||o.directness==='muchMoreDirect',text:'Defensive Line Behaviour: Drop Off More - long balls test your defence; win the first header and the second ball (CBs: Heading, Jumping Reach, Strength)',why:'They play direct',own:true,set:{'Defensive Line Behaviour':'Drop Off More'}},
   // Their Tempo, from the game's staff feedback: lower = more control but more likely to dwell on the ball and gives the
   // other team time to regroup; higher = less time to regroup but less control and more rushed bad passes.
   {when:o=>o.tempo==='lower'||o.tempo==='muchLower',text:'Trigger Press: More Often - a slow tempo means they dwell on the ball; close them down before they settle',why:'They play a low tempo',own:true,set:{'Trigger Press':'More Often'}},
@@ -407,6 +412,7 @@ if(form.line.selectedIndex<0)form.line.value='standard';
 if(form.lineBehaviour.selectedIndex<0)form.lineBehaviour.value='balanced';
 if(form.engage.selectedIndex<0)form.engage.value='mid';
 if(form.tempo.selectedIndex<0)form.tempo.value='standard';
+if(form.directness.selectedIndex<0)form.directness.value='standard';
 const read=()=>Object.fromEntries([...form.querySelectorAll('select,input')].map(e=>[e.name,e.type==='checkbox'?e.checked:e.value]));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const li=(x,cls)=>`<li${cls?` class="${cls}"`:''}>${esc(x)}</li>`;
