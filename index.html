@@ -55,6 +55,11 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
   <h1>Spygate - Your FM27 Assistant Manager</h1>
   <button type="button" id="bgToggle" aria-pressed="true" style="margin:-4px 0 0">Background animation: on</button>
 </div>
+<div class="box" style="margin-bottom:16px">
+  <h2 class="oppo">YOUR SQUAD</h2>
+  <label class="chk"><input type="checkbox" name="canPress">Most of my players have Aggression, Work Rate + Stamina 14+ (pressing legs)</label>
+  <p class="why" style="margin:6px 0 0">Ticked: Control Possession, Catenaccio and Park the Bus get a Plan B high press.</p>
+</div>
 <div class="box">
   <h2 class="oppo">OPPOSITION SETUP</h2>
   <label>Their formation (in possession)<select name="formation"></select></label>
@@ -78,8 +83,6 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
   <label>Compared to you, they are<select name="strength"><option value="weaker">Weaker</option><option value="even" selected>About even</option><option value="stronger">Stronger</option></select></label>
   <label>Home or away?<select name="venue"><option value="">Not sure</option><option value="home">Home</option><option value="away">Away</option></select></label>
   <div id="scout"></div>
-  <h3>Your squad</h3>
-  <label class="chk"><input type="checkbox" name="canPress">Most of my players have Aggression, Work Rate + Stamina 14+ (pressing legs)</label>
 </div>
 </form>
 <section id="out"></section>
