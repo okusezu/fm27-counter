@@ -153,8 +153,8 @@ test('their defensive line behaviour', () => {
 
 test('their line of engagement', () => {
   assert.equal(r({engage:'high'}).set['Build-Up Strategy'],'Bypass Press');
-  assert.equal(r({engage:'mid'}).set['Build-Up Strategy'],'Play Through Press');
+  assert.equal(r({engage:'mid',style:'tiki'}).set['Build-Up Strategy'],'Bypass Press'); // default Mid Block leaves the plan alone
   const l=r({engage:'low'}).set;assert.equal(l['Attacking Width'],'Wider');assert.equal(l['Patience'],'Work Ball Into Box');
-  assert.ok(!r({engage:''}).tweaks.some(t=>/Block|High Press/.test(t.why)));
+  assert.ok(!r({engage:'mid'}).tweaks.some(t=>/Block|High Press/.test(t.why)));
   for(const engage of ['low','mid','high'])checkSet(r({engage}).set);
 });
