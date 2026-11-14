@@ -6,7 +6,7 @@ A counter-tactic helper for Football Manager 27. Describe the opponent (their in
 - mentality, in and out of possession shapes, and in and out of possession instructions
 - your formation against theirs: their weak spot, the shape that counters it, and a warning if you're outnumbered in midfield
 - tweaks from the scout report (where they score and concede, set pieces, aerial strength, slow defenders, and more)
-- a **setup sheet** listing every Team Instruction with the setting to pick highlighted, and any overrides explained
+- a **setup sheet** listing just the Team Instructions to change, with the setting to pick highlighted, and any overrides explained
 
 ## Use it
 
