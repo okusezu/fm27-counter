@@ -19,8 +19,8 @@ select{display:block;width:100%;margin-top:3px;background:var(--bg);color:var(--
 .chk{display:flex;gap:8px;align-items:flex-start}
 .chk input{accent-color:var(--accent);margin-top:3px}
 ul{margin:0;padding-left:18px}li{margin:2px 0}
-.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-@media(max-width:1000px){.cols{grid-template-columns:1fr}}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.cols.two{grid-template-columns:repeat(2,1fr)}.cols.two>div{border:1px solid var(--line);background:var(--bg);padding:6px 12px}.cols.two h3{margin-top:4px}
+@media(max-width:1000px){.cols,.cols.two{grid-template-columns:1fr}}
 table{border-collapse:collapse;width:100%}
 th,td{text-align:left;padding:3px 8px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:400}
 .why{color:var(--muted)}.warn{color:var(--warn)}
@@ -33,6 +33,7 @@ th,td{text-align:left;padding:3px 8px;border-bottom:1px solid var(--line)}th{col
 button{font:inherit;background:none;border:1px solid var(--line);color:var(--accent);padding:2px 8px;cursor:pointer}
 .tag{color:var(--bg);background:var(--accent);padding:0 6px;margin-right:6px}
 h3.big{font-size:16px;color:var(--accent);margin-top:0}
+.oppo{font-size:20px;font-weight:700;letter-spacing:.06em;margin:0 0 10px}
 .shape{border:1px solid var(--line);background:var(--bg);padding:6px 10px;margin:4px 0 8px}
 .shape span{display:block;color:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
 .shape b{font-size:18px;color:var(--accent)}
@@ -42,9 +43,13 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
 </style></head><body>
 <canvas id="bg" aria-hidden="true"></canvas>
 <main>
-<form class="box" id="form" onsubmit="return false">
+<form id="form" onsubmit="return false">
+<div class="box" style="margin-bottom:16px">
   <h1>Spygate - Your FM27 Assistant Manager</h1>
-  <button type="button" id="bgToggle" aria-pressed="true" style="margin:-4px 0 12px">Background animation: on</button>
+  <button type="button" id="bgToggle" aria-pressed="true" style="margin:-4px 0 0">Background animation: on</button>
+</div>
+<div class="box">
+  <h2 class="oppo">OPPOSITION PLAYSTYLE</h2>
   <label>Their formation (in possession)<select name="formation"></select></label>
   <label>Their formation (out of possession)<select name="oopShape"></select></label>
   <label>Their mentality<select name="mentality">
@@ -60,6 +65,7 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
   <div id="scout"></div>
   <h3>Your squad</h3>
   <label class="chk"><input type="checkbox" name="canPress">Most of my players have Work Rate + Stamina 14+</label>
+</div>
 </form>
 <section id="out"></section>
 </main>
@@ -123,6 +129,9 @@ const PLANS={
     roles:[['WBL/WBR','Wing Back','Pressing Wing-Back'],['AML/AMR (the 2)','Inside Forward','Tracking Winger'],['CM','Midfield Playmaker','Screening Central Midfielder'],['CM','Central Midfielder','Pressing Central Midfielder'],['CB (middle)','Centre-Back','Stopping Centre-Back'],['CB x2 (outside)','Centre-Back','Covering Centre-Back'],['ST','Channel Forward','Splitting Outlet Centre Forward']],
     adjust:['Still crossed from one side: Trigger Press their full-back harder on that side and keep the Tracking Winger there','Losing headers in the box: bring on your tallest defender; key CB attributes Heading, Jumping Reach, Positioning, Strength','Cutbacks hurting you: drop wide players deeper','Ahead: lower mentality, Low Block, keep the back five and keep countering','They stop going wide and come through the middle: switch to the Plays through the press plan']},
 };
+// Team mentality scale; each plan's start point reads its 'Mentality:' line on the sheet (middle/neutral = Balanced, one step/higher = Attacking).
+const MOODS=['Very Defensive','Cautious','Balanced','Attacking','Very Attacking'];
+const PLAN_MOOD={attacking:2,cautious:3,possessionA:2,possessionB:3,through:2,tiki:2,wing:2};
 // Their shape: central players, weak spot (formation sheet / counter sheet) and the shape that counters it.
 const SHAPES={
   '4-4-2':{mid:2,weak:'Outnumbered in central midfield',ip:'4-3-3',oop:'4-1-4-1',why:'Two-man midfield: 4-3-3 gives a natural 3v2'},
@@ -222,11 +231,11 @@ const MID={...Object.fromEntries(Object.entries(SHAPES).map(([k,v])=>[k,v.mid]))
 const TWEAKS=[
   {when:o=>o.press==='high',text:'Buildup Strategy: Bypass press',why:'They press high',set:{'Build-Up Strategy':'Bypass Press'}},
   {when:o=>o.line==='high',text:'Pass Reception: into space behind their line; ST as Channel Forward',why:'They play a high line',set:{'Pass Reception':'Into Space'}},
-  {when:o=>o.strength==='stronger',text:'Mentality one notch lower; consider Low Block with 5-4-1 OOP',why:'Stronger opponent (5-4-1: protecting a lead, stronger opponents)'},
-  {when:o=>o.strength==='weaker',text:'Mentality one notch higher',why:'Weaker opponent',own:true},
+  {when:o=>o.strength==='stronger',text:'Mentality one notch lower; consider Low Block with 5-4-1 OOP',why:'Stronger opponent (5-4-1: protecting a lead, stronger opponents)',mood:-1},
+  {when:o=>o.strength==='weaker',text:'Mentality one notch higher',why:'Weaker opponent',own:true,mood:1},
   // Home/away: FM community advice (FM24-FM26 guides), nothing FM27-specific yet.
   {when:o=>o.venue==='home',text:'Mentality: your usual setting, or a notch higher - expect more of the ball at home',why:'Home',own:true},
-  {when:o=>o.venue==='away'&&o.strength!=='weaker',text:'Mentality one notch lower than at home (e.g. Positive to Balanced, Balanced to Cautious); stay on your feet',why:'Away from home',own:true,set:{'Tackling':'Ease Off'}},
+  {when:o=>o.venue==='away'&&o.strength!=='weaker',text:'Mentality one notch lower than at home (e.g. Positive to Balanced, Balanced to Cautious); stay on your feet',why:'Away from home',own:true,mood:-1,set:{'Tackling':'Ease Off'}},
   {when:o=>o.venue==='away'&&o.strength==='weaker',text:'Away to a weaker side: keep your usual mentality - no need to drop a notch',why:'Away, but they are weaker',own:true},
   // ---- scout report ----
   {key:'goalsFrom',value:'crosses',ask:'Where do they score most of their goals from?',label:'Crosses',
@@ -297,6 +306,12 @@ function recommend(o,force){
   // Your shapes against them: attack their OOP shape (if known), defend against their IP shape.
   const mine={ip:oopC?oopC.ip.split(' - ')[0]:shape.ip,ipWhy:oopC?`vs their ${o.oopShape} out of possession: ${oopC.ip.split(' - ')[1]||oopC.weak}`:`vs their ${o.formation}: ${shape.why}`,
     oop:shape.oop,oopWhy:`vs their ${o.formation} in possession: ${shape.why}`};
+  const moodT=tweaks.filter(t=>t.mood);
+  const m=PLAN_MOOD[plan]+moodT.reduce((n,t)=>n+t.mood,0);
+  // Never Very Defensive before kick-off (user): it rarely gets a result; only late on, holding a lead or a player down.
+  mine.mood=MOODS[Math.max(1,Math.min(4,m))];
+  mine.moodWhy=[PLANS[plan].shape[0].replace(/,.*$/,''),...moodT.map(t=>`${t.why}: ${t.mood>0?'+':''}${t.mood}`),
+    ...(m<1?['Very Defensive only late on when holding a lead or down to 10 men']:[])].join(' · ');
   return {plan,reasons:ranked.find(r=>r.key===plan).reasons,ranked,tweaks,shape,oop,warns,set,oopC,clashes,mine};
 }
 </script>
@@ -324,6 +339,7 @@ function render(){
   out.innerHTML=`<div><nav class="tabs" role="tablist" aria-label="Counter plans">${Object.keys(PLANS).map(k=>
     `<button class="tab" role="tab" aria-selected="${k===r.plan}" data-plan="${k===auto?'':k}">${k===auto?'★ ':''}${esc(PLANS[k].tab)}<span class="sc">${score[k]}</span></button>`).join('')}</nav>
   <div class="box tabbed">
+    <h2 class="oppo">ASSESSING THE OPPOSITION&#39;S WEAKNESS</h2>
     <h2>${P.name}</h2>
     <p>${esc(P.blurb)}</p>
     ${P.own?'<p class="warn">Not from the cheat sheets: worked out here, so test it in a friendly first.</p>':''}
@@ -336,16 +352,20 @@ function render(){
       ${li('Settings added to the setup sheet: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}
   </div></div>
   ${r.tweaks.length||r.clashes.length?`<div class="box">
-    ${r.tweaks.length?`<h3 class="big">Tweaks for this opponent</h3><ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}${t.own?' (not from the cheat sheets)':''}</span></li>`).join('')}</ul>`:''}
+    ${r.tweaks.length?`<h3 class="big" style="font-size:20px">Tweaks for this opponent</h3><ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}${t.own?' (not from the cheat sheets)':''}</span></li>`).join('')}</ul>`:''}
     ${r.clashes.length?`<h3>Overrides on the setup sheet</h3>${ul(r.clashes,'warn')}`:''}
   </div>`:''}
   <div class="box">
-    <div class="cols">
-      <div><h3>Mentality &amp; shape</h3>
+    <h3 class="big" style="font-size:20px">YOUR MENTALITY AND SHAPE</h3>
+        <div class="shape"><span>Team mentality</span><b>${esc(r.mine.mood)}</b><small>${esc(r.mine.moodWhy)}</small></div>
         <div class="shape"><span>In possession shape</span><b>${esc(r.mine.ip)}</b><small>${esc(r.mine.ipWhy)}</small></div>
         <div class="shape"><span>Out of possession shape</span><b>${esc(r.mine.oop)}</b><small>${esc(r.mine.oopWhy)}</small></div>
         ${r.mine.ip!==P.ipShape||r.mine.oop!==P.oop?`<p class="why">The plan's own shape is IP ${esc(P.ipShape)} / OOP ${esc(P.oop)} - the roles below follow it; move them into your shape.</p>`:''}
-        ${ul(P.shape)}</div>
+        ${ul(P.shape)}
+  </div>
+  <div class="box">
+    <h3 class="big" style="font-size:20px">IN POSSESSION AND OUT OF POSSESSION TIPS</h3>
+    <div class="cols two">
       <div><h3>In possession</h3>${ul(P.ip)}</div>
       <div><h3>Out of possession</h3>${ul(P.oopI)}</div>
     </div>
@@ -355,7 +375,7 @@ function render(){
     <h3>In-game adjustments</h3>${ul(P.adjust)}
   </div>
   <div class="box">
-    <h3 class="big">Setup sheet: every Team Instruction</h3>
+    <h3 class="big" style="font-size:20px">SETUP SHEET: YOUR TEAM INSTRUCTIONS</h3>
     <p class="why">Highlighted = set this. Dim row = leave the default. ✓ label seen in FM27 · ? label from a pre-release FM26 guide, may be worded differently in game.</p>
     <table><tr><th>Phase</th><th>Instruction</th><th>Options</th></tr>
       ${TI.map(t=>{const s=r.set[t.name];return `<tr class="${s?'':'why'}"><td>${t.phase}</td><td>${t.name} <span class="why">${t.ok?'✓':'?'}</span></td>
