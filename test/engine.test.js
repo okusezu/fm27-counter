@@ -129,3 +129,11 @@ test('a chosen playstyle wins even when everything else points elsewhere', () =>
   for(const k of TABS)assert.ok(r({...deep,style:k}).plan.startsWith(k),k);
   for(const k of TABS)assert.ok(r({formation:'4-2-4',mentality:'attacking',line:'high',style:k}).plan.startsWith(k),k);
 });
+
+test('how often they trigger the press', () => {
+  const m=r({trigger:'more'});assert.equal(m.set['Build-Up Strategy'],'Bypass Press');assert.equal(m.set['GK Distribution (Speed)'],'Distribute Quickly');
+  assert.ok(r({trigger:'muchMore'}).tweaks.some(t=>t.text.startsWith('Pressing that hard')));
+  assert.equal(r({trigger:'less'}).set['Build-Up Strategy'],'Play Through Press');
+  assert.equal(r({trigger:''}).set['Build-Up Strategy'],undefined);
+  checkSet(m.set);checkSet(r({trigger:'less'}).set);
+});
