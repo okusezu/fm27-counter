@@ -79,7 +79,7 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
   <label>Home or away?<select name="venue"><option value="">Not sure</option><option value="home">Home</option><option value="away">Away</option></select></label>
   <div id="scout"></div>
   <h3>Your squad</h3>
-  <label class="chk"><input type="checkbox" name="canPress">Most of my players have Work Rate + Stamina 14+</label>
+  <label class="chk"><input type="checkbox" name="canPress">Most of my players have Aggression, Work Rate + Stamina 14+ (pressing legs)</label>
 </div>
 </form>
 <section id="out"></section>
@@ -105,13 +105,13 @@ const PLANS={
   // The sheet's possession section has two answers; each is its own plan, picked by your squad's pressing legs.
   possessionA:{tab:'Control Possession',name:'vs Control Possession - A: block + counter',ipShape:'4-3-3',oop:'4-1-4-1',
     blurb:'Short passing, high full-backs, high defensive line. Plan A: sit in a compact block and counter into the space behind.',
-    shape:['Mentality: neutral or lower, 4-1-4-1 / 4-4-1-1 OOP','Rule of thumb: most players Work Rate + Stamina 14+ -> try B, else A','Expect 35-40% possession - fine if you get chances'],
+    shape:['Mentality: neutral or lower, 4-1-4-1 / 4-4-1-1 OOP','Rule of thumb: most players Aggression, Work Rate + Stamina 14+ -> try B, else A','Expect 35-40% possession - fine if you get chances'],
     ip:['Attacking Transition: counter quickly','Passing Directness: more direct, Tempo higher','Pass Reception: into space behind their high line','Buildup Strategy: Bypass press if they press you'],
     oopI:['Phase: Mid Block, narrow and compact','Line of Engagement: lower, Defensive Line: standard','Pressing Trap: push them wide','Defensive Transition: drop back into shape'],
     adjust:["They're passing round you: narrow up, drop Line of Engagement a notch",'Counters caught offside: ST to Deep-Lying Forward, runs come from deeper','Ahead: they push more men up - stay patient, keep countering']},
   possessionB:{tab:'Control Possession',name:'vs Control Possession - B: high press',ipShape:'4-3-3',oop:'4-3-3',
     blurb:'Short passing, high full-backs, high defensive line. Plan B: press them high and win it near their goal.',
-    shape:['Mentality: higher, 4-3-3 / 4-2-3-1 OOP matched to their build-up','Rule of thumb: most players Work Rate + Stamina 14+ -> try B, else A','Expect 35-40% possession - fine if you get chances'],
+    shape:['Mentality: higher, 4-3-3 / 4-2-3-1 OOP matched to their build-up','Rule of thumb: most players Aggression, Work Rate + Stamina 14+ -> try B, else A','Expect 35-40% possession - fine if you get chances'],
     ip:['Buildup Strategy: Bypass press if they press you','Quick vertical passes after winning it high'],
     oopI:['Phase: High Press, Line of Engagement + Defensive Line higher','Trigger Press: much more often','Short Goalkeeper Distribution: prevent it','Pressing Traps toward their weaker passers'],
     adjust:["They're passing round you: narrow up, drop Line of Engagement a notch",'Counters caught offside: ST to Deep-Lying Forward, runs come from deeper','Pressing: sub early, ease Trigger Press around 60 min','Ahead: they push more men up - stay patient, keep countering']},
@@ -371,7 +371,7 @@ function recommend(o,force){
   const ranked=score(o);
   // A chosen playstyle always decides the plan; the scores only guess when it's 'Not sure'.
   let plan=force||(STYLE_NAME[o.style]?o.style:ranked[0].key);
-  // Possession A or B: the sheet's rule of thumb (Work Rate + Stamina 14+ -> press), never press a stronger side.
+  // Possession A or B: the sheet's rule of thumb (Work Rate + Stamina 14+ -> press; user adds Aggression), never press a stronger side.
   if(plan==='possession'||!force&&plan.startsWith('possession'))plan=o.canPress&&o.strength!=='stronger'?'possessionB':'possessionA';
   const tweaks=TWEAKS.filter(t=>tweakOn(t,o));
   const shape=SHAPES[o.formation],oop=PLANS[plan].oop;
@@ -552,6 +552,21 @@ render();
   // Still until hovered; spins and twinkles stars around it only while the pointer is over it.
   let spin=.6,timer=null,sparkles=null;
   el.innerHTML=frame(spin);
+  // Favicon: this first frame, characters and colours as on the page, shrunk onto a 64px canvas.
+  try{
+    const rows=[[]];
+    const walk=(node,col)=>{for(const n of node.childNodes){
+      if(n.nodeType===3){for(const ch of n.data)ch==='\n'?rows.push([]):rows.at(-1).push([ch,col]);}
+      else walk(n,getComputedStyle(n).color);}};
+    walk(el,getComputedStyle(el).color);
+    const used=rows.flatMap((r,y)=>r.map(([ch],x)=>ch!==' '?[x,y]:null)).filter(Boolean);
+    const x0=Math.min(...used.map(u=>u[0])),x1=Math.max(...used.map(u=>u[0])),y0=Math.min(...used.map(u=>u[1])),y1=Math.max(...used.map(u=>u[1]));
+    const N=64,cw=.6,sz=N/Math.max((x1-x0+1)*cw,y1-y0+1),c=document.createElement('canvas');c.width=c.height=N;
+    const g=c.getContext('2d');g.font=`900 ${sz*1.7}px ui-monospace,monospace`;g.textAlign='center';g.textBaseline='middle';
+    const ox=(N-(x1-x0+1)*cw*sz)/2,oy=(N-(y1-y0+1)*sz)/2;
+    rows.forEach((r,y)=>r.forEach(([ch,col],x)=>{if(ch===' ')return;g.fillStyle=col;g.fillText(ch,ox+(x-x0+.5)*cw*sz,oy+(y-y0+.5)*sz);}));
+    const link=document.createElement('link');link.rel='icon';link.href=c.toDataURL();document.head.append(link);
+  }catch{}
   el.addEventListener('pointerenter',()=>{if(still.matches||timer)return;sparkles=new Map();timer=setInterval(()=>{
     sparkles.forEach((age,i)=>age>=TWINKLE.length*2-1?sparkles.delete(i):sparkles.set(i,age+1));
     for(let n=0;n<2;n++)if(Math.random()<.6)sparkles.set(Math.floor(Math.random()*BW*BH),0);
