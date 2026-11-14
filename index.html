@@ -488,7 +488,7 @@ function render(){
   </div>
   <div class="box">
     <h3 class="big" style="font-size:20px">SETUP SHEET: YOUR TEAM INSTRUCTIONS</h3>
-    <p class="why">Only the instructions you need to change are listed - leave everything else on its default. The highlighted option in each row is the setting to pick.</p>
+    <p class="why">Only the instructions you need to change are listed - leave everything else on its default unless you have specific team instructions you like to set. The highlighted option in each row is the setting to pick.</p>
     <table><tr><th>Phase</th><th>Instruction</th><th>Options</th></tr>
       ${TI.filter(t=>r.set[t.name]).map(t=>{const s=r.set[t.name];return `<tr><td>${t.phase}</td><td>${t.name}</td>
         <td>${t.opts.map(x=>x===s?`<span class="tag">${x}</span>`:x).join(' · ')}</td></tr>`;}).join('')}</table>
