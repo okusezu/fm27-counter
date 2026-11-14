@@ -27,7 +27,7 @@ test('opponent tweaks fire from inputs', () => {
   for(const s of ['Bypass press','Pass Reception','Short Goalkeeper Distribution','Tackling'])assert.ok(t.includes(s),s);
 });
 test('every plan has roles, settings, and the force switch works', () => {
-  for(const k of Object.keys(PLANS)){assert.ok(PLANS[k].roles.length>=6);assert.ok(SETS[k],k);assert.equal(recommend(base,k).plan,k);}
+  for(const k of Object.keys(PLANS)){assert.ok(PLANS[k].roles.length>=6);assert.ok(PLANS[k].ipShape&&PLANS[k].oop,k);assert.ok(SETS[k],k);assert.equal(recommend(base,k).plan,k);}
 });
 test('wing play -> Wing Play plan with back-five OOP', () => {
   const x=r({style:'wing',formation:'4-4-2'});

@@ -27,6 +27,9 @@ th,td{text-align:left;padding:3px 8px;border-bottom:1px solid var(--line)}th{col
 .alt{margin-top:6px}button{font:inherit;background:none;border:1px solid var(--line);color:var(--accent);padding:2px 8px;cursor:pointer}
 .tag{color:var(--bg);background:var(--accent);padding:0 6px;margin-right:6px}
 h3.big{font-size:16px;color:var(--accent);margin-top:0}
+.shape{border:1px solid var(--line);background:var(--bg);padding:6px 10px;margin:4px 0 8px}
+.shape span{display:block;color:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.shape b{font-size:18px;color:var(--accent)}
 #out{display:grid;gap:16px;align-content:start}
 </style></head><body>
 <canvas id="bg" aria-hidden="true"></canvas>
@@ -55,14 +58,14 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
 // ---------- data: transcribed from docs/fm27-counter-tactics.pdf and docs/fm27-formations-cheatsheet.pdf ----------
 // Engine only (no DOM): test/engine.test.js runs this block on its own.
 const PLANS={
-  attacking:{name:'vs Attacking 4-2-4',oop:'4-1-4-1',
+  attacking:{name:'vs Attacking 4-2-4',ipShape:'4-3-3 or 4-2-3-1',oop:'4-1-4-1',
     blurb:"Six players committed forward, only two central midfielders, wingers don't track back. Win the midfield 3v2, absorb, then hit the space behind their wingers and full-backs.",
     shape:['Mentality: middle of the scale - not defensive, not attacking','IP shape: 4-3-3 or 4-2-3-1','OOP shape: 4-1-4-1 - DM screens their two strikers','Never fewer than a back four out of possession'],
     ip:['Attacking Transition: counter quickly','Passing Directness: more direct','Pass Reception: into space, behind their full-backs','Progress Through: the flanks','Supporting Runs: overlap on one side for 2v1s','Once ahead: lower Tempo, raise Patience'],
     oopI:["Phase: Mid Block (Low Block if they're overrunning you)",'Defensive Line: lower','Line of Engagement: standard - stop their two CMs turning','Trigger Press: on their CMs, not their back line','Defensive Transition: drop back into shape','Tackling: ease off if their forwards dribble well'],
     roles:[['DM','Defensive Midfielder','Screening Defensive Midfielder'],['CM','Midfield Playmaker','Screening Central Midfielder'],['CM','Central Midfielder','Pressing Central Midfielder'],['AML','Inside Forward','Tracking Winger'],['AMR','Winger','Wide Outlet Winger'],['FB x2','Full Back','Holding Full-Back'],['ST','Channel Forward','Splitting Outlet Centre Forward']],
     adjust:["Overrun wide: switch wide players' OOP role to Tracking Winger on both sides",'Comfortably ahead: lower mentality, drop to Low Block','Behind and they push higher: keep countering - more space opens']},
-  cautious:{name:'vs Cautious mentality',oop:'4-4-2',
+  cautious:{name:'vs Cautious mentality',ipShape:'2-3-5 / 3-2-5',oop:'4-4-2',
     blurb:'They sit deep, keep bodies behind the ball and wait for the break. Be patient, stretch them wide, get runners into the box - but never leave yourself open.',
     shape:['Mentality: one step attacking - not the maximum','Go further up the scale after 60-70 min if still 0-0','Keep DM + both CBs home at all times','IP 2-3-5 / 3-2-5 overloads a deep block; OOP 4-4-2 or 4-2-3-1 (formation sheet)'],
     ip:['Attacking Width: wider','Passing Directness: shorter','Tempo: slightly lower; Patience: higher','Supporting Runs: overlap / underlap for wide 2v1s','Crossing Style: low or whipped, not floated','Creative Freedom: higher with creative players','Shots from Distance: more, only with good Long Shots'],
@@ -70,21 +73,21 @@ const PLANS={
     roles:[['ST','False Nine','Centre Forward'],['AMC','Second Striker','Tracking Attacking Midfielder'],['AML','Inside Forward','Tracking Winger'],['WBR','Wing Back','Pressing Wing-Back'],['CM','Advanced Playmaker','Pressing Central Midfielder'],['DM','Half Back','Screening Defensive Midfielder'],['CB x2','Ball-Playing Centre-Back','Covering Centre-Back']],
     adjust:["Check Analysis after 20 min: shift Progress Through to the side that's working",'60 min, no goal: fresh winger or Target Forward, more crossing','1-0 up: lower mentality, switch to counter on Attacking Transition','Set pieces: tall players on corners, one on edge of box']},
   // The sheet's possession section has two answers; each is its own plan, picked by your squad's pressing legs.
-  possessionA:{name:'vs Control Possession - A: block + counter',oop:'4-1-4-1',
+  possessionA:{name:'vs Control Possession - A: block + counter',ipShape:'4-3-3',oop:'4-1-4-1',
     blurb:'Short passing, high full-backs, high defensive line. Plan A: sit in a compact block and counter into the space behind.',
     shape:['Mentality: neutral or lower, 4-1-4-1 / 4-4-1-1 OOP','Rule of thumb: most players Work Rate + Stamina 14+ -> try B, else A','Expect 35-40% possession - fine if you get chances'],
     ip:['Attacking Transition: counter quickly','Passing Directness: more direct, Tempo higher','Pass Reception: into space behind their high line','Buildup Strategy: Bypass press if they press you'],
     oopI:['Phase: Mid Block, narrow and compact','Line of Engagement: lower, Defensive Line: standard','Pressing Trap: push them wide','Defensive Transition: drop back into shape'],
     roles:[['ST','Channel Forward','Splitting Outlet Centre Forward'],['AML/R','Winger','Wide Outlet Winger'],['CM','Central Midfielder','Pressing Central Midfielder'],['CM','Midfield Playmaker','Screening Central Midfielder'],['DM','Defensive Midfielder','Screening Defensive Midfielder'],['CB (fast)','Centre-Back','Covering Centre-Back']],
     adjust:["They're passing round you: narrow up, drop Line of Engagement a notch",'Counters caught offside: ST to Deep-Lying Forward, runs come from deeper','Ahead: they push more men up - stay patient, keep countering']},
-  possessionB:{name:'vs Control Possession - B: high press',oop:'4-3-3',
+  possessionB:{name:'vs Control Possession - B: high press',ipShape:'4-3-3',oop:'4-3-3',
     blurb:'Short passing, high full-backs, high defensive line. Plan B: press them high and win it near their goal.',
     shape:['Mentality: higher, 4-3-3 / 4-2-3-1 OOP matched to their build-up','Rule of thumb: most players Work Rate + Stamina 14+ -> try B, else A','Expect 35-40% possession - fine if you get chances'],
     ip:['Buildup Strategy: Bypass press if they press you','Quick vertical passes after winning it high'],
     oopI:['Phase: High Press, Line of Engagement + Defensive Line higher','Trigger Press: much more often','Short Goalkeeper Distribution: prevent it','Pressing Traps toward their weaker passers'],
     roles:[['ST','Channel Forward','Centre Forward'],['AML/R','Winger','Winger'],['CM','Central Midfielder','Pressing Central Midfielder'],['CM','Midfield Playmaker','Screening Central Midfielder'],['DM','Defensive Midfielder','Screening Defensive Midfielder'],['CB (fast)','Centre-Back','Covering Centre-Back']],
     adjust:["They're passing round you: narrow up, drop Line of Engagement a notch",'Counters caught offside: ST to Deep-Lying Forward, runs come from deeper','Pressing: sub early, ease Trigger Press around 60 min','Ahead: they push more men up - stay patient, keep countering']},
-  through:{name:'vs Plays through the press',oop:'4-2-3-1',
+  through:{name:'vs Plays through the press',ipShape:'4-2-3-1',oop:'4-2-3-1',
     blurb:"Comfortable under pressure and only wants close-range chances. Don't press high - shut the centre, protect the box, force them wide, counter when they've committed.",
     shape:['Mentality: middle of the scale (lower once ahead)','OOP shape: 4-2-3-1 with two DMs, or 4-1-4-1','CBs stay home - no Advanced Centre-Back','Wide players must track back (Tracking roles)'],
     ip:['Attacking Transition: counter quickly','Tempo higher, Passing Directness more direct','Deep-Lying Playmaker at DM plays the first ball forward','Buildup Strategy: Bypass press if they press you well'],
@@ -93,7 +96,7 @@ const PLANS={
     adjust:['Chances from cutbacks: drop wide players deeper','Chances through the middle: add a third central midfielder','Ahead: lower mentality, Low Block, keep countering','Key defender attributes: Positioning, Concentration, Anticipation']},
   // Not in the PDFs: worked out from the formation sheet (5-4-1 covers the width of the box, space
   // behind wing-backs/full-backs) using only instruction and role names that appear in the sheets.
-  wing:{name:'vs Wing Play',oop:'5-4-1',own:true,
+  wing:{name:'vs Wing Play',ipShape:'3-4-2-1',oop:'5-4-1',own:true,
     blurb:"Wide overloads: wingers plus overlapping full-backs, crosses and cutbacks into the box. Double up on every flank, fill the box, then break into the space their full-backs leave behind.",
     shape:['Mentality: middle of the scale (a step lower vs stronger sides)','IP shape: 3-4-2-1 / OOP shape: 5-4-1 - the back five covers the width of the box','Wide players always track back: 2v1 on each flank against winger + full-back','CBs stay in the box - no Advanced Centre-Back'],
     ip:['Attacking Transition: counter quickly','Pass Reception: into space, behind their full-backs','Progress Through: the flanks - attack the side their full-back bombs on from','Passing Directness: more direct','Once ahead: lower Tempo, raise Patience'],
@@ -304,7 +307,10 @@ function render(){
   </div>`:''}
   <div class="box">
     <div class="cols">
-      <div><h3>Mentality &amp; shape</h3>${ul(P.shape)}</div>
+      <div><h3>Mentality &amp; shape</h3>
+        <div class="shape"><span>In possession shape</span><b>${P.ipShape}</b></div>
+        <div class="shape"><span>Out of possession shape</span><b>${P.oop}</b></div>
+        ${ul(P.shape)}</div>
       <div><h3>In possession</h3>${ul(P.ip)}</div>
       <div><h3>Out of possession</h3>${ul(P.oopI)}</div>
     </div>
