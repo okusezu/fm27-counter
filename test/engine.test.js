@@ -122,3 +122,9 @@ test('their 4-2-4 out of possession -> three central players and counter setting
   const x=recommend({...base,oopShape:'4-2-4'});
   assert.equal(x.mine.ip,'4-3-3 or 4-2-3-1');assert.equal(x.set['Attacking Transition'],'Counter-Attack');
 });
+
+test('a chosen playstyle wins even when everything else points elsewhere', () => {
+  const deep={formation:'5-4-1',mentality:'defensive',line:'deep',press:'high'};
+  for(const k of TABS)assert.ok(r({...deep,style:k}).plan.startsWith(k),k);
+  for(const k of TABS)assert.ok(r({formation:'4-2-4',mentality:'attacking',line:'high',style:k}).plan.startsWith(k),k);
+});

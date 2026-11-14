@@ -325,7 +325,8 @@ function score(o){
 }
 function recommend(o,force){
   const ranked=score(o);
-  let plan=force||ranked[0].key;
+  // A chosen playstyle always decides the plan; the scores only guess when it's 'Not sure'.
+  let plan=force||(STYLE_NAME[o.style]?o.style:ranked[0].key);
   // Possession A or B: the sheet's rule of thumb (Work Rate + Stamina 14+ -> press), never press a stronger side.
   if(plan==='possession'||!force&&plan.startsWith('possession'))plan=o.canPress&&o.strength!=='stronger'?'possessionB':'possessionA';
   const tweaks=TWEAKS.filter(t=>tweakOn(t,o));
