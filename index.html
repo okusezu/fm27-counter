@@ -52,7 +52,8 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
   <label>Their formation (in possession)<select name="formation"></select></label>
   <label>Their formation (out of possession)<select name="oopShape"></select></label>
   <label>Their mentality<select name="mentality">
-    <option value="defensive">Defensive / Cautious</option><option value="balanced" selected>Balanced</option><option value="attacking">Attacking</option></select></label>
+    <option value="veryDefensive">Very Defensive</option><option value="defensive">Defensive</option><option value="cautious">Cautious</option><option value="balanced" selected>Balanced</option>
+    <option value="positive">Positive</option><option value="attacking">Attacking</option><option value="veryAttacking">Very Attacking</option></select></label>
   <label>Their playstyle<select name="style">
     <option value="unknown">Not sure</option><option value="possession">Control Possession</option>
     <option value="gegen">Gegenpress</option><option value="tiki">Tiki-Taka</option>
@@ -158,9 +159,9 @@ const PLANS={
     adjust:['Still crossed from one side: Trigger Press their full-back harder on that side and keep the Tracking Winger there','Losing headers in the box: bring on your tallest defender; key CB attributes Heading, Jumping Reach, Positioning, Strength','Cutbacks hurting you: drop wide players deeper','Ahead: lower mentality, Low Block, keep the back five and keep countering','They stop going wide and come through the middle: switch to the Vertical Tiki-Taka tab']},
 };
 const TABS=['possession','gegen','tiki','vtiki','wing','route','fluid','direct','catenaccio','bus'];
-// Team mentality scale; each plan's start point reads its 'Mentality:' line on the sheet (middle/neutral = Balanced, one step/higher = Attacking).
-const MOODS=['Very Defensive','Cautious','Balanced','Attacking','Very Attacking'];
-const PLAN_MOOD={route:2,bus:3,possessionA:2,possessionB:3,vtiki:2,tiki:2,wing:2,gegen:2,fluid:2,direct:2,catenaccio:3};
+// FM27's seven mentalities; each plan's start point reads its 'Mentality:' line on the sheet (middle/neutral = Balanced, one step/higher = Positive).
+const MOODS=['Very Defensive','Defensive','Cautious','Balanced','Positive','Attacking','Very Attacking'];
+const PLAN_MOOD={route:3,bus:4,possessionA:3,possessionB:4,vtiki:3,tiki:3,wing:3,gegen:3,fluid:3,direct:3,catenaccio:4};
 // Their shape: central players, weak spot (formation sheet / counter sheet) and the shape that counters it.
 const SHAPES={
   '4-4-2':{mid:2,weak:'Outnumbered in central midfield',ip:'4-3-3',oop:'4-1-4-1',why:'Two-man midfield: 4-3-3 gives a natural 3v2'},
@@ -333,11 +334,12 @@ function score(o){
   // Their playstyle (the game's list) is the main signal; the rest nudges.
   if(o.style&&o.style!=='unknown')add(o.style,5,`Plays ${STYLE_NAME[o.style]}`);
   if(o.style==='tiki'||o.style==='vtiki')add('possession',2,'A Control Possession variant');
-  if(o.mentality==='attacking')add('route',3,'Attacking mentality');
+  const attacking=['attacking','veryAttacking'].includes(o.mentality),defensive=['veryDefensive','defensive','cautious'].includes(o.mentality);
+  if(attacking)add('route',3,'Attacking mentality');
   if(['4-2-4','2-3-5','3-4-3','4-4-2'].includes(o.formation))add('route',2,`${o.formation} commits players forward`);
-  if(o.mentality==='defensive')add('bus',3,'Defensive / cautious mentality');
+  if(defensive)add('bus',3,'Defensive mentality');
   if(['5-4-1','5-3-2'].includes(o.formation))add('bus',2,`${o.formation} is a deep block`);
-  if(o.mentality==='defensive'&&['3-5-2','5-3-2','3-4-2-1','5-2-1-2 DM AM'].includes(o.formation))add('catenaccio',2,`Defensive with a back three (${o.formation})`);
+  if(defensive&&['3-5-2','5-3-2','3-4-2-1','5-2-1-2 DM AM'].includes(o.formation))add('catenaccio',2,`Defensive with a back three (${o.formation})`);
   if(o.engage==='low')add('bus',1,'Low Block');
   if(o.engage==='high')add('gegen',1,'High Press');
   if(o.line==='lower'||o.line==='muchLower')add('bus',1,'Deep defensive line');
@@ -372,7 +374,7 @@ function recommend(o,force){
   const moodT=tweaks.filter(t=>t.mood);
   const m=PLAN_MOOD[plan]+moodT.reduce((n,t)=>n+t.mood,0);
   // Never Very Defensive before kick-off (user): it rarely gets a result; only late on, holding a lead or a player down.
-  mine.mood=MOODS[Math.max(1,Math.min(4,m))];
+  mine.mood=MOODS[Math.max(1,Math.min(6,m))];
   mine.moodWhy=[PLANS[plan].shape[0].replace(/,.*$/,''),...moodT.map(t=>`${t.why}: ${t.mood>0?'+':''}${t.mood}`),
     ...(m<1?['Very Defensive only late on when holding a lead or down to 10 men']:[])];
   return {plan,reasons:ranked.find(r=>r.key===plan).reasons,ranked,tweaks,shape,oop,warns,set,oopC,clashes,mine};

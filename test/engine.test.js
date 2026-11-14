@@ -113,9 +113,12 @@ test('5-2-1-2 DM AM: attack the lone wing-backs, 4-1-4-1 matches their three cen
 });
 test('team mentality: plan start point, one notch per strength/away tweak, clamped to the scale', () => {
   assert.equal(r({style:'vtiki'}).mine.mood,'Balanced');
-  assert.equal(r({formation:'5-4-1',mentality:'defensive'}).mine.mood,'Attacking');
-  assert.equal(r({style:'vtiki',strength:'stronger',venue:'away'}).mine.mood,'Cautious'); // never Very Defensive pre-match
-  assert.equal(r({style:'vtiki',strength:'weaker',venue:'away'}).mine.mood,'Attacking');
+  assert.equal(r({formation:'5-4-1',mentality:'defensive'}).mine.mood,'Positive');
+  assert.equal(r({style:'vtiki',strength:'stronger',venue:'away'}).mine.mood,'Defensive');
+  assert.equal(r({style:'vtiki',strength:'weaker',venue:'away'}).mine.mood,'Positive');
+  for(const k of Object.keys(PLANS))assert.notEqual(r({style:k.replace(/[AB]$/,''),strength:'stronger',venue:'away'}).mine.mood,'Very Defensive',k); // never pre-match
+  for(const m of ['veryDefensive','cautious'])assert.equal(r({formation:'5-4-1',mentality:m}).plan,'bus');
+  assert.equal(r({formation:'4-2-4',mentality:'veryAttacking'}).plan,'route');
   for(const k of Object.keys(PLANS))assert.ok(recommend(base,k).mine.mood,k);
 });
 
