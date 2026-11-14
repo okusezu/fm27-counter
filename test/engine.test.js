@@ -137,3 +137,9 @@ test('how often they trigger the press', () => {
   assert.equal(r({trigger:''}).set['Build-Up Strategy'],undefined);
   checkSet(m.set);checkSet(r({trigger:'less'}).set);
 });
+
+test('their defensive line: through balls vs a high line, to feet vs a deep one', () => {
+  for(const line of ['higher','muchHigher']){const x=r({line}).set;assert.equal(x['Pass Reception'],'Pass Into Space');assert.equal(x['Passing Directness'],'More Direct');}
+  for(const line of ['lower','muchLower'])assert.equal(r({line}).set['Pass Reception'],'Pass To Feet');
+  assert.ok(!r({line:'standard'}).tweaks.some(t=>/line$/.test(t.why)));
+});

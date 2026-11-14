@@ -274,7 +274,10 @@ const TWEAKS=[
   {when:o=>o.trigger==='muchMore',text:'Pressing that hard tires them: from 60 min, more balls in behind and fresh legs up front',why:'They press much more often',own:true},
   {when:o=>o.trigger==='less',text:'Time on the ball: Build-Up Strategy Play Through Press - pass out from the back',why:'They rarely press',own:true,
     set:{'Build-Up Strategy':'Play Through Press'}},
-  {when:o=>highLine(o),text:'Pass Reception: into space behind their line; ST as Channel Forward',why:'They play a high line',set:{'Pass Reception':'Pass Into Space'}},
+  // Their line, from the game's Defensive Line staff feedback: higher = vulnerable to direct through balls,
+  // more offside, relies on the GK; lower = space in front of the defence and on the edge of the box.
+  {when:o=>highLine(o),text:'Pass Reception: Pass Into Space, Passing Directness: More Direct - through balls behind their line; ST as Channel Forward, runs from deep to beat the offside trap',why:'They play a high line',set:{'Pass Reception':'Pass Into Space','Passing Directness':'More Direct'}},
+  {when:o=>o.line==='lower'||o.line==='muchLower',text:"Pass Reception: Pass To Feet - no room in behind, so get players between their lines and onto the edge of the box; Shots From Distance: Encourage only with good Long Shots",why:'They play a deep line',own:true,set:{'Pass Reception':'Pass To Feet'}},
   {when:o=>o.strength==='stronger',text:'Mentality one notch lower; consider Low Block with 5-4-1 OOP',why:'Stronger opponent (5-4-1: protecting a lead, stronger opponents)',mood:-1},
   {when:o=>o.strength==='weaker',text:'Mentality one notch higher',why:'Weaker opponent',own:true,mood:1},
   // Home/away: FM community advice (FM24-FM26 guides), nothing FM27-specific yet.
