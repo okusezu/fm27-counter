@@ -11,7 +11,8 @@ html{background:var(--bg)}body{margin:0;color:var(--ink);font:13px/1.5 var(--mon
 main{display:grid;grid-template-columns:300px 1fr;gap:16px;max-width:1200px;margin:0 auto;padding:16px}
 @media(max-width:800px){main{grid-template-columns:1fr}}
 h1{font-size:15px;margin:0 0 12px;color:var(--accent)}
-.ball{margin:0 0 10px;font-size:13px;line-height:1.15;color:var(--ink)}
+.ball{margin:0 auto 12px;width:max-content;font:700 11px/1 ui-monospace,monospace;color:var(--soft)}
+.ball .h{color:var(--ink)}.ball .l{color:var(--muted)}.ball .p{color:var(--line)}
 h2{font-size:14px;margin:0 0 4px;color:var(--accent)}
 h3{font-size:13px;margin:14px 0 4px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em}
 .box{border:1px solid var(--line);background:var(--bg-lift);padding:12px 14px}
@@ -44,14 +45,8 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
 <canvas id="bg" aria-hidden="true"></canvas>
 <main>
 <form id="form" onsubmit="return false">
+<pre class="ball" id="ball" aria-hidden="true"></pre>
 <div class="box" style="margin-bottom:16px">
-  <pre class="ball" aria-hidden="true">     .-"""-.
-   .' \___/ '.
-  /\__/   \__/\
- |  / \___/ \  |
-  \/\_/   \_/\/
-   '. /___\ .'
-     '-...-'</pre>
   <h1>Spygate - Your FM27 Assistant Manager</h1>
   <button type="button" id="bgToggle" aria-pressed="true" style="margin:-4px 0 0">Background animation: on</button>
 </div>
@@ -492,6 +487,45 @@ render();
   btn.addEventListener('click',()=>{on=!on;try{localStorage.setItem(KEY,on?'on':'off');}catch{}apply();});
   apply();
   if(!still)setInterval(()=>{if(on&&!document.hidden)frame();},83);
+})();
+</script>
+<script>
+// Spinning ASCII football, drawn like donut.c (same idea as the bean on recipes.okayok.coffee):
+// a sphere sampled, spun, projected and z-buffered; the 12 pentagon patches sit at an icosahedron's vertices.
+(()=>{
+  const BW=30,BH=15,SHADE='.,-~:;=!*#$@',el=document.getElementById('ball');
+  const g=(1+Math.sqrt(5))/2,V=[];
+  for(const a of[-1,1])for(const b of[-g,g])V.push([0,a,b],[a,b,0],[b,0,a]);
+  for(const v of V){const n=Math.hypot(...v);v[0]/=n;v[1]/=n;v[2]/=n;}
+  function frame(spin){
+    const lum=new Array(BW*BH).fill(null),zb=new Float32Array(BW*BH);
+    const cA=Math.cos(spin),sA=Math.sin(spin),cT=Math.cos(.35),sT=Math.sin(.35),L=[-.4,.55,.73];
+    for(let th=0;th<2*Math.PI;th+=.025)for(let ph=-Math.PI/2;ph<=Math.PI/2;ph+=.025){
+      const x=Math.cos(ph)*Math.cos(th),y=Math.sin(ph),z=Math.cos(ph)*Math.sin(th);
+      let near=0;for(const v of V)near=Math.max(near,x*v[0]+y*v[1]+z*v[2]);
+      const x1=x*cA+z*sA,z1=-x*sA+z*cA,y2=y*cT-z1*sT,z2=y*sT+z1*cT; // spin, then tilt toward the viewer
+      const ooz=1/(3-z2),px=Math.round(BW/2-.5+1.9*14*ooz*x1),py=Math.round(BH/2-.5-14*ooz*y2);
+      if(px<0||px>=BW||py<0||py>=BH)continue;
+      const i=py*BW+px;if(ooz<=zb[i])continue;zb[i]=ooz;
+      lum[i]=[x1*L[0]+y2*L[1]+z2*L[2],near>.965]; // [light, on a pentagon patch]
+    }
+    let html='',run='',cls='';
+    const flush=()=>{if(run)html+=cls?`<span class="${cls}">${run}</span>`:run;run='';};
+    for(let r=0;r<BH;r++){
+      for(let c=0;c<BW;c++){
+        const v=lum[r*BW+c];let ch=' ',k='';
+        if(v&&v[1]){ch=v[0]>.15?':':'.';k='p';} // pentagon patches read as dark panels
+        else if(v){ch=SHADE[Math.max(0,Math.min(11,Math.floor((v[0]+.15)*9.5)))];k=v[0]>.55?'h':v[0]>.15?'m':'l';}
+        if(k!==cls){flush();cls=k;}run+=ch;
+      }
+      flush();if(r<BH-1)html+='\n';
+    }
+    return html;
+  }
+  const still=matchMedia('(prefers-reduced-motion: reduce)');
+  let spin=.6;
+  const tick=()=>{if(document.hidden)return;el.innerHTML=frame(spin);if(!still.matches)spin+=.09;};
+  tick();setInterval(tick,70);
 })();
 </script>
 </body></html>
