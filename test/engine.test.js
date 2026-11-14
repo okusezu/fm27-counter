@@ -161,3 +161,10 @@ test('their line of engagement', () => {
   assert.ok(!r({engage:'mid'}).tweaks.some(t=>/Block|High Press/.test(t.why)));
   for(const engage of ['low','mid','high'])checkSet(r({engage}).set);
 });
+
+test('their tempo', () => {
+  for(const tempo of ['lower','muchLower'])assert.equal(r({tempo}).set['Trigger Press'],'More Often');
+  for(const tempo of ['higher','muchHigher'])assert.equal(r({tempo}).set['Defensive Transition'],'Regroup');
+  assert.ok(!r({tempo:'standard'}).tweaks.some(t=>/tempo/.test(t.why)));
+  checkSet(r({tempo:'lower'}).set);checkSet(r({tempo:'higher'}).set);
+});

@@ -68,6 +68,7 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
     <option value="bus">Park the Bus</option></select></label>
   <label>Pressing intensity<select name="trigger"><option value="">Not sure</option><option value="less">Less Often</option><option value="balanced">Balanced</option><option value="more">More Often</option><option value="muchMore">Much More Often</option></select></label>
   <label>Their line of engagement<select name="engage"><option value="low">Low Block</option><option value="mid" selected>Mid Block</option><option value="high">High Press</option></select></label>
+  <label>Their tempo<select name="tempo"><option value="muchLower">Much Lower</option><option value="lower">Lower</option><option value="standard" selected>Standard</option><option value="higher">Higher</option><option value="muchHigher">Much Higher</option></select></label>
   <label>Their defensive line<select name="line"><option value="muchLower">Much Lower</option><option value="lower">Lower</option><option value="standard" selected>Standard</option><option value="higher">Higher</option><option value="muchHigher">Much Higher</option></select></label>
   <label>Their defensive line behaviour<select name="lineBehaviour"><option value="stepUp">Step Up More</option><option value="balanced" selected>Balanced</option><option value="dropOff">Drop Off More</option></select></label>
   <label>Compared to you, they are<select name="strength"><option value="weaker">Weaker</option><option value="even" selected>About even</option><option value="stronger">Stronger</option></select></label>
@@ -189,7 +190,7 @@ const SHAPES={
 // Wrong label in your game? Fix it here; the test checks every plan setting still exists.
 const TI=[
   ['In possession','Passing Directness',['Much Shorter','Shorter','Balanced','More Direct','Much More Direct']],
-  ['In possession','Tempo',['Lower','Standard','Higher']],
+  ['In possession','Tempo',['Much Lower','Lower','Standard','Higher','Much Higher']],
   ['In possession','Time Wasting',['Less Often','Standard','More Often']],
   ['In possession','Attacking Transition',['Counter-Attack','Standard','Patient Build-Up'],true],
   ['In possession','Attacking Width',['Much Narrower','Narrower','Standard','Wider','Much Wider']],
@@ -290,6 +291,10 @@ const TWEAKS=[
   // other team control possession and its counters start further from goal.
   {when:o=>o.engage==='high',text:'Build-Up Strategy: Bypass Press - go over their press; beat it once and you attack an open pitch',why:'They engage with a High Press',own:true,set:{'Build-Up Strategy':'Bypass Press'}},
   {when:o=>o.engage==='low',text:'Attacking Width: Wider, Patience: Work Ball Into Box - they let you have the ball and their final third is compact; their counters start far from your goal',why:'They sit in a Low Block',own:true,set:{'Attacking Width':'Wider','Patience':'Work Ball Into Box'}},
+  // Their Tempo, from the game's staff feedback: lower = more control but more likely to dwell on the ball and gives the
+  // other team time to regroup; higher = less time to regroup but less control and more rushed bad passes.
+  {when:o=>o.tempo==='lower'||o.tempo==='muchLower',text:'Trigger Press: More Often - a slow tempo means they dwell on the ball; close them down before they settle',why:'They play a low tempo',own:true,set:{'Trigger Press':'More Often'}},
+  {when:o=>o.tempo==='higher'||o.tempo==='muchHigher',text:"Defensive Transition: Regroup - they attack before you're set, so get back into shape; their rushed passes go astray, so let them make the mistakes",why:'They play a high tempo',own:true,set:{'Defensive Transition':'Regroup'}},
   // Game staff feedback: Step Up More compacts the space but is vulnerable to a well-timed pass in behind;
   // Drop Off More is safer against balls in behind but concedes more space.
   {when:o=>o.lineBehaviour==='stepUp',text:'Pass Reception: Pass Into Space - the space is compact, but a well-timed pass in behind beats them; runs from deep, a striker on the last man gets caught offside',why:'Their line steps up',own:true,set:{'Pass Reception':'Pass Into Space'}},
@@ -401,6 +406,7 @@ if(form.style.selectedIndex<0)form.style.value='unknown';
 if(form.line.selectedIndex<0)form.line.value='standard';
 if(form.lineBehaviour.selectedIndex<0)form.lineBehaviour.value='balanced';
 if(form.engage.selectedIndex<0)form.engage.value='mid';
+if(form.tempo.selectedIndex<0)form.tempo.value='standard';
 const read=()=>Object.fromEntries([...form.querySelectorAll('select,input')].map(e=>[e.name,e.type==='checkbox'?e.checked:e.value]));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const li=(x,cls)=>`<li${cls?` class="${cls}"`:''}>${esc(x)}</li>`;
