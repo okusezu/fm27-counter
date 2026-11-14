@@ -523,9 +523,11 @@ render();
     return html;
   }
   const still=matchMedia('(prefers-reduced-motion: reduce)');
-  let spin=.6;
-  const tick=()=>{if(document.hidden)return;el.innerHTML=frame(spin);if(!still.matches)spin+=.09;};
-  tick();setInterval(tick,70);
+  // Still until hovered; spins only while the pointer is over it.
+  let spin=.6,timer=null;
+  el.innerHTML=frame(spin);
+  el.addEventListener('pointerenter',()=>{if(still.matches||timer)return;timer=setInterval(()=>{spin+=.09;el.innerHTML=frame(spin);},70);});
+  el.addEventListener('pointerleave',()=>{clearInterval(timer);timer=null;});
 })();
 </script>
 </body></html>
