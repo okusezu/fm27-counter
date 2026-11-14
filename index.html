@@ -30,6 +30,7 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
 .shape{border:1px solid var(--line);background:var(--bg);padding:6px 10px;margin:4px 0 8px}
 .shape span{display:block;color:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
 .shape b{font-size:18px;color:var(--accent)}
+.shape small{display:block;color:var(--muted);font-size:11px;line-height:1.4;margin-top:2px}
 #out{display:grid;gap:16px;align-content:start}
 </style></head><body>
 <canvas id="bg" aria-hidden="true"></canvas>
@@ -265,7 +266,10 @@ function recommend(o,force){
     if(k in set&&set[k]!==v)clashes.push(`${k}: ${v} (${who}) replaces ${set[k]} (${from[k]})`);
     set[k]=v;from[k]=who;
   }
-  return {plan,reasons:ranked.find(r=>r.key===plan).reasons,ranked,tweaks,shape,oop,warns,set,oopC,clashes};
+  // Your shapes against them: attack their OOP shape (if known), defend against their IP shape.
+  const mine={ip:oopC?oopC.ip.split(' - ')[0]:shape.ip,ipWhy:oopC?`vs their ${o.oopShape} out of possession: ${oopC.ip.split(' - ')[1]||oopC.weak}`:`vs their ${o.formation}: ${shape.why}`,
+    oop:shape.oop,oopWhy:`vs their ${o.formation} in possession: ${shape.why}`};
+  return {plan,reasons:ranked.find(r=>r.key===plan).reasons,ranked,tweaks,shape,oop,warns,set,oopC,clashes,mine};
 }
 </script>
 <script id="ui">
@@ -308,8 +312,9 @@ function render(){
   <div class="box">
     <div class="cols">
       <div><h3>Mentality &amp; shape</h3>
-        <div class="shape"><span>In possession shape</span><b>${P.ipShape}</b></div>
-        <div class="shape"><span>Out of possession shape</span><b>${P.oop}</b></div>
+        <div class="shape"><span>In possession shape</span><b>${esc(r.mine.ip)}</b><small>${esc(r.mine.ipWhy)}</small></div>
+        <div class="shape"><span>Out of possession shape</span><b>${esc(r.mine.oop)}</b><small>${esc(r.mine.oopWhy)}</small></div>
+        ${r.mine.ip!==P.ipShape||r.mine.oop!==P.oop?`<p class="why">The plan's own shape is IP ${esc(P.ipShape)} / OOP ${esc(P.oop)} - the roles below follow it; move them into your shape.</p>`:''}
         ${ul(P.shape)}</div>
       <div><h3>In possession</h3>${ul(P.ip)}</div>
       <div><h3>Out of possession</h3>${ul(P.oopI)}</div>

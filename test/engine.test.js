@@ -83,3 +83,10 @@ test('5-2-3 Wide (2 DM, wing-backs + wingers): two strikers vs the back three, w
   assert.equal(x.shape.ip,'4-4-2');assert.ok(x.shape.why.includes('Wing play'));
   assert.equal(x.warns.length,0); // 4-1-4-1 / 4-4-2 OOP have >= their 2 central players
 });
+test('your shapes: OOP beats their IP shape, IP beats their OOP shape (falls back to their IP shape)', () => {
+  const a=r({formation:'4-4-2'});
+  assert.equal(a.mine.oop,'4-1-4-1');assert.equal(a.mine.ip,'4-3-3');
+  const b=r({formation:'4-4-2',oopShape:'5-4-1'});
+  assert.equal(b.mine.oop,'4-1-4-1');assert.equal(b.mine.ip,'2-3-5 / 3-2-5');
+  assert.ok(b.mine.ipWhy.startsWith('vs their 5-4-1 out of possession'));
+});
