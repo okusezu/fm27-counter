@@ -64,7 +64,7 @@ test('Bypass press only when they press (PDF: "if they press you")', () => {
 test('scout report: where they score decides crosses vs stepping up', () => {
   const c=r({goalsFrom:'crosses'}).set,m=r({goalsFrom:'middle'}).set;
   assert.equal(c['Cross Engagement'],'Stop Crosses');assert.equal(c['Pressing Trap'],'Trap Inside');
-  assert.equal(m['Defensive Line Behaviour'],'Step Up');assert.equal(m['Pressing Trap'],'Trap Outside');
+  assert.equal(m['Defensive Line Behaviour'],'Step Up More');assert.equal(m['Pressing Trap'],'Trap Outside');
   assert.equal(r({}).set['Defensive Line Behaviour'],undefined);
 });
 test('scout report: set pieces, and overrides of the plan are reported', () => {
@@ -142,4 +142,11 @@ test('their defensive line: through balls vs a high line, to feet vs a deep one'
   for(const line of ['higher','muchHigher']){const x=r({line}).set;assert.equal(x['Pass Reception'],'Pass Into Space');assert.equal(x['Passing Directness'],'More Direct');}
   for(const line of ['lower','muchLower'])assert.equal(r({line}).set['Pass Reception'],'Pass To Feet');
   assert.ok(!r({line:'standard'}).tweaks.some(t=>/line$/.test(t.why)));
+});
+
+test('their defensive line behaviour', () => {
+  assert.equal(r({lineBehaviour:'dropOff'}).set['Pass Reception'],'Pass To Feet');
+  assert.ok(r({lineBehaviour:'stepUp'}).tweaks.some(t=>t.why==='Their line steps up'));
+  assert.ok(!r({lineBehaviour:'balanced'}).tweaks.some(t=>t.why.startsWith('Their line')));
+  assert.equal(r({style:'direct'}).set['Defensive Line Behaviour'],'Drop Off More');
 });
