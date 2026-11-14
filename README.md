@@ -10,7 +10,7 @@ A counter-tactic helper for Football Manager 27. Describe the opponent (their in
 
 ## Use it
 
-**[Open it in your browser](https://okusezu.github.io/fm27-counter/)**, or download [`index.html`](https://raw.githubusercontent.com/okusezu/fm27-counter/main/index.html) (right-click → Save link as) and double-click it. It's one file, works offline, and needs no install.
+**[Open it in your browser](https://fm27-spygate.pages.dev/)**, or download [`index.html`](https://raw.githubusercontent.com/okusezu/fm27-counter/main/index.html) (right-click → Save link as) and double-click it. It's one file, works offline, and needs no install.
 
 ## Screenshots
 
