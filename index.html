@@ -431,7 +431,7 @@ const asks={};for(const t of TWEAKS)if(t.ask)(asks[t.key]??=[]).push(t);
 const askList=Object.entries(asks),firstTick=askList.findIndex(([,ts])=>!ts[0].value);
 document.getElementById('scout').innerHTML='<h3>Scout report</h3>'+askList.map(([k,ts],i)=>ts[0].value
   ?`<label>${ts[0].ask}<select name="${k}"><option value="">Not sure</option>${ts.map(t=>`<option value="${t.value}">${t.label}</option>`).join('')}</select></label>`
-  :`${i===firstTick?'<h3>Opposition report</h3>':''}<label class="chk"><input type="checkbox" name="${k}">${ts[0].ask}</label>`).join('');
+  :`${i===firstTick?'<h3 style="text-decoration:underline;text-underline-offset:3px">Opposition report</h3>':''}<label class="chk"><input type="checkbox" name="${k}">${ts[0].ask}</label>`).join('');
 form.oopShape.innerHTML='<option value="">Not sure</option>'+Object.keys(OOPS).map(f=>`<option>${f}</option>`).join('');
 try{const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
   for(const[k,v]of Object.entries(saved))if(form[k])form[k].type==='checkbox'?form[k].checked=v:form[k].value=v;}catch{}
