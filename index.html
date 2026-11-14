@@ -376,11 +376,11 @@ function render(){
   </div>
   <div class="box">
     <h3 class="big" style="font-size:20px">SETUP SHEET: YOUR TEAM INSTRUCTIONS</h3>
-    <p class="why">Highlighted = set this. Dim row = leave the default. ✓ label seen in FM27 · ? label from a pre-release FM26 guide, may be worded differently in game.</p>
+    <p class="why">Highlighted = set this. Dim row = leave the default.</p>
     <table><tr><th>Phase</th><th>Instruction</th><th>Options</th></tr>
-      ${TI.map(t=>{const s=r.set[t.name];return `<tr class="${s?'':'why'}"><td>${t.phase}</td><td>${t.name} <span class="why">${t.ok?'✓':'?'}</span></td>
+      ${TI.map(t=>{const s=r.set[t.name];return `<tr class="${s?'':'why'}"><td>${t.phase}</td><td>${t.name}</td>
         <td>${t.opts.map(x=>x===s?`<span class="tag">${x}</span>`:x).join(' · ')}</td></tr>`;}).join('')}</table>
-    <p class="why">Instruction names follow the FM26 Team Instructions screen (FM27 keeps the system). Where a setting is a direction (higher, lower), pick the matching notch in game.</p>
+    <p class="why">Where a setting is a direction (higher, lower), pick the matching notch in game.</p>
   </div>`;
 }
 form.addEventListener('change',()=>{force=null;render();});
