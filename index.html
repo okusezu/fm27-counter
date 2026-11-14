@@ -33,7 +33,9 @@ th,td{text-align:left;padding:3px 8px;border-bottom:1px solid var(--line)}th{col
 .tab{flex:0 0 auto;border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;background:var(--bg);color:var(--soft);padding:6px 8px;margin-bottom:-1px;white-space:nowrap;font-size:12px}
 .tab:hover{color:var(--ink)}
 .planab{margin:0 0 2px;font-size:18px;font-weight:700;letter-spacing:.05em;color:var(--ink)}
-.abpick{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 2px;padding-top:12px;border-top:1px solid var(--line)}
+/* Plan A / B: tabs hanging off the bottom of the folder */
+.tabs.under .tab{border-top:0;border-bottom:1px solid var(--line);border-radius:0 0 8px 8px;margin:-1px 0 0}
+.tabs.under .tab.on{border-color:var(--ink)}
 .pill{border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--soft);padding:5px 8px;font-size:12px}
 .pill:hover{color:var(--ink)}
 .pill.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:700}
@@ -468,8 +470,7 @@ function render(){
     <ul>${li('Weak spot: '+r.shape.weak)}${li(`Shape counter: IP ${r.shape.ip} / OOP ${r.shape.oop} - ${r.shape.why}`)}${r.warns.map(w=>li(w,'warn')).join('')}</ul>
     ${r.oopC?`<h3>Their ${esc(o.oopShape)} out of possession</h3>
     <ul>${li('Weak spot: '+r.oopC.weak)}${li('Attack it with: '+r.oopC.ip)}${r.oopC.tips.map(t=>li(t)).join('')}
-      ${li('Added to your team instructions: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}
-    ${pair?`<div class="abpick">${pair.map(k=>`<button type="button" class="pill${k===r.plan?' on':''}" data-plan="${k}" aria-pressed="${k===r.plan}">${ab(k)}</button>`).join('')}</div>`:''}`],
+      ${li('Added to your team instructions: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}`],
     ['shape','Mentality and shape',`${big('YOUR MENTALITY AND SHAPE')}
     <div class="shape"><span>Team mentality</span><b>${esc(r.mine.mood)}</b><small>${ul(r.mine.moodWhy)}</small></div>
     <div class="shape"><span>In possession shape</span><b>${esc(r.mine.ip)}</b><small>${ul(r.mine.ipWhy)}</small></div>
@@ -494,7 +495,8 @@ function render(){
   const cur=tiles.find(t=>t[0]===tile)||tiles[0];
   out.innerHTML=`<div><div class="tabs" role="tablist"><span class="tab label">${esc(STYLE_NAME[fam].toUpperCase())}</span>${tiles.map(([id,name])=>
     `<button type="button" role="tab" class="tab${id===cur[0]?' on':''}" data-tile="${id}" aria-selected="${id===cur[0]}">${name}</button>`).join('')}</div>
-  <div class="box tabbed" role="tabpanel">${cur[2]}</div></div>`;
+  <div class="box tabbed" role="tabpanel">${cur[2]}</div>
+  ${pair?`<div class="tabs under">${pair.map(k=>`<button type="button" class="tab${k===r.plan?' on':''}" data-plan="${k}" aria-pressed="${k===r.plan}">${ab(k)}</button>`).join('')}</div>`:''}</div>`;
 }
 form.addEventListener('change',()=>{force=null;render();});
 out.addEventListener('click',e=>{const p=e.target.closest('[data-plan]'),t=e.target.closest('[data-tile]');
