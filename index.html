@@ -26,6 +26,8 @@ th,td{text-align:left;padding:3px 8px;border-bottom:1px solid var(--line)}th{col
 .why{color:var(--muted)}.warn{color:var(--warn)}
 .alt{margin-top:6px}button{font:inherit;background:none;border:1px solid var(--line);color:var(--accent);padding:2px 8px;cursor:pointer}
 .tag{color:var(--bg);background:var(--accent);padding:0 6px;margin-right:6px}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0 0}
+h3.big{font-size:16px;color:var(--accent)}
 </style></head><body>
 <canvas id="bg" aria-hidden="true"></canvas>
 <main>
@@ -295,7 +297,8 @@ function render(){
     <p class="warn">Weak spot from the formation cheat sheet; how to attack it is worked out here, not from the cheat sheets.</p>
     <ul>${li('Weak spot: '+r.oopC.weak)}${li('Attack it with: '+r.oopC.ip)}${r.oopC.tips.map(t=>li(t)).join('')}
       ${li('Settings added to the setup sheet: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}
-    ${r.tweaks.length?`<h3>Tweaks for this opponent</h3><ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}${t.own?' (not from the cheat sheets)':''}</span></li>`).join('')}</ul>`:''}
+    <hr>
+    ${r.tweaks.length?`<h3 class="big">Tweaks for this opponent</h3><ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}${t.own?' (not from the cheat sheets)':''}</span></li>`).join('')}</ul>`:''}
     ${r.clashes.length?`<h3>Overrides on the setup sheet</h3>${ul(r.clashes,'warn')}`:''}
     <div class="cols">
       <div><h3>Mentality &amp; shape</h3>${ul(P.shape)}</div>
