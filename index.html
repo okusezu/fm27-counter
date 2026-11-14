@@ -27,6 +27,7 @@ th,td{text-align:left;padding:3px 8px;border-bottom:1px solid var(--line)}th{col
 .tabs{display:flex;gap:2px;overflow-x:auto;padding:0 6px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 .tab{flex:0 0 auto;border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;background:var(--bg);color:var(--soft);padding:6px 8px;margin-bottom:-1px;white-space:nowrap;font-size:12px}
 .tab:hover{color:var(--ink)}
+.tab.label{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700;letter-spacing:.05em}
 .tab[aria-selected=true]{background:var(--bg-lift);color:var(--accent);position:relative;z-index:1}
 .tab .sc{color:var(--muted);margin-left:6px;font-size:11px}
 .box.tabbed{border-top-left-radius:0}
@@ -336,7 +337,7 @@ function render(){
   const r=recommend(o,force),P=PLANS[r.plan],auto=force?recommend(o).plan:r.plan;
   const score=Object.fromEntries(r.ranked.map(x=>[x.key,x.total]));
   // Firefox-style tabs, fixed order; ★ = the tool's pick, clicking it goes back to automatic.
-  out.innerHTML=`<div><nav class="tabs" role="tablist" aria-label="Counter plans">${Object.keys(PLANS).map(k=>
+  out.innerHTML=`<div><nav class="tabs" role="tablist" aria-label="Counter plans"><span class="tab label" aria-hidden="true">PLAYSTYLES</span>${Object.keys(PLANS).map(k=>
     `<button class="tab" role="tab" aria-selected="${k===r.plan}" data-plan="${k===auto?'':k}">${k===auto?'★ ':''}${esc(PLANS[k].tab)}<span class="sc">${score[k]}</span></button>`).join('')}</nav>
   <div class="box tabbed">
     <h2 class="oppo">ASSESSING THE OPPOSITION&#39;S WEAKNESS</h2>
