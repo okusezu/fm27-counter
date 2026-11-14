@@ -26,7 +26,7 @@ test('count the middle warns when outnumbered', () => {
   assert.equal(r({formation:'4-4-2',mentality:'attacking'}).warns.length,0);
 });
 test('opponent tweaks fire from inputs', () => {
-  const t=r({trigger:'more',line:'high',weakPassers:true,dribblers:true}).tweaks.map(x=>x.text).join('|');
+  const t=r({trigger:'more',line:'higher',weakPassers:true,dribblers:true}).tweaks.map(x=>x.text).join('|');
   for(const s of ['Bypass Press','Pass Reception','Short Goalkeeper Distribution','Tackling'])assert.ok(t.includes(s),s);
 });
 test('every plan has a shape, settings, and the force switch works', () => {
@@ -40,7 +40,7 @@ test('wing play -> Wing Play plan with back-five OOP', () => {
 test('every plan, tweak and shape-counter setting names a real instruction and option', () => {
   for(const s of Object.values(SETS))checkSet(s);
   for(const c of Object.values(OOPS))checkSet(c.set);
-  checkSet(r({trigger:'more',line:'high',weakPassers:true,dribblers:true}).set);
+  checkSet(r({trigger:'more',line:'higher',weakPassers:true,dribblers:true}).set);
 });
 test('setup sheet follows the plan and tweaks', () => {
   assert.equal(r({style:'possession',canPress:true}).set['Line of Engagement'],'High Press');
@@ -125,9 +125,9 @@ test('their 4-2-4 out of possession -> three central players and counter setting
 });
 
 test('a chosen playstyle wins even when everything else points elsewhere', () => {
-  const deep={formation:'5-4-1',mentality:'defensive',line:'deep',trigger:'more'};
+  const deep={formation:'5-4-1',mentality:'defensive',line:'lower',trigger:'more'};
   for(const k of TABS)assert.ok(r({...deep,style:k}).plan.startsWith(k),k);
-  for(const k of TABS)assert.ok(r({formation:'4-2-4',mentality:'attacking',line:'high',style:k}).plan.startsWith(k),k);
+  for(const k of TABS)assert.ok(r({formation:'4-2-4',mentality:'attacking',line:'higher',style:k}).plan.startsWith(k),k);
 });
 
 test('how often they trigger the press', () => {

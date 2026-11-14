@@ -61,7 +61,7 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
     <option value="direct">Direct Counter-Attack</option><option value="catenaccio">Catenaccio</option>
     <option value="bus">Park the Bus</option></select></label>
   <label>Pressing intensity<select name="trigger"><option value="">Not sure</option><option value="less">Less Often</option><option value="balanced">Balanced</option><option value="more">More Often</option><option value="muchMore">Much More Often</option></select></label>
-  <label>Their defensive line<select name="line"><option value="deep">Deep</option><option value="standard" selected>Standard</option><option value="high">High</option></select></label>
+  <label>Their defensive line<select name="line"><option value="muchLower">Much Lower</option><option value="lower">Lower</option><option value="standard" selected>Standard</option><option value="higher">Higher</option><option value="muchHigher">Much Higher</option></select></label>
   <label>Compared to you, they are<select name="strength"><option value="weaker">Weaker</option><option value="even" selected>About even</option><option value="stronger">Stronger</option></select></label>
   <label>Home or away?<select name="venue"><option value="">Not sure</option><option value="home">Home</option><option value="away">Away</option></select></label>
   <div id="scout"></div>
@@ -127,7 +127,7 @@ const PLANS={
     blurb:"They soak up pressure, then go straight forward with direct, structured counters - early balls into the channels for quick forwards. Keep the ball, but never leave space in behind: a deeper line and a DM screening the first pass.",
     shape:['Mentality: middle of the scale','IP 4-3-3 - the DM stays home as the screen','OOP 4-1-4-1 - the DM screens their first ball forward','CBs stay home - no Advanced Centre-Back'],
     ip:['Attacking Transition: Patient Build-Up','Passing Directness: Shorter','Patience: Work Ball Into Box','Attacking Width: Wider','Crossing Style: Low Crosses - no floated balls for them to clear and break from'],
-    oopI:['Defensive Line: Deeper - no space behind for their early balls','Line of Engagement: Mid Block','Defensive Transition: Counter-Press - press the first pass before it goes long','Defensive Line Behaviour: Balanced - no Offside Trap against runners from deep'],
+    oopI:['Defensive Line: Lower - no space behind for their early balls','Line of Engagement: Mid Block','Defensive Transition: Counter-Press - press the first pass before it goes long','Defensive Line Behaviour: Balanced - no Offside Trap against runners from deep'],
     adjust:['Balls in behind still hurting: drop the line another notch, fastest CB on the cover side','Their target forward winning headers: key CB attributes Heading, Jumping Reach, Strength','Ahead: they have to come out - switch to Counter-Attack','No way through after 60 min: fresh winger, more crossing']},
   catenaccio:{tab:'Catenaccio',name:'vs Catenaccio',ipShape:'4-4-2 / 4-2-2-2',oop:'4-4-2',own:true,
     blurb:"They nullify your attack with three centre-backs and a deep, disciplined block. Pin their back three with two strikers, attack the space around their wing-backs, and be patient - but keep bodies home for their counter.",
@@ -199,7 +199,7 @@ const TI=[
   ['Final third','Shots From Distance',['Discourage','Balanced','Encourage']],
   ['Final third','Crossing Style',['Balanced','Floated Crosses','Whipped Crosses','Low Crosses']],
   ['Out of possession','Line of Engagement',['High Press','Mid Block','Low Block'],true],
-  ['Out of possession','Defensive Line',['Deeper','Standard','Higher','Much Higher']],
+  ['Out of possession','Defensive Line',['Much Lower','Lower','Standard','Higher','Much Higher']],
   ['Out of possession','Defensive Line Behaviour',['Balanced','Offside Trap','Step Up']],
   ['Out of possession','Trigger Press',['Less Often','Balanced','More Often','Much More Often'],true],
   ['Out of possession','Defensive Transition',['Counter-Press','Standard','Regroup'],true],
@@ -211,7 +211,7 @@ const TI=[
 // Each plan's bullets turned into settings on that list. Anything not set: leave the default.
 const SETS={
   route:{'Attacking Transition':'Counter-Attack','Passing Directness':'More Direct','Pass Reception':'Pass Into Space','Supporting Runs':'One Flank',
-    'Line of Engagement':'Mid Block','Defensive Line':'Deeper','Defensive Transition':'Regroup'},
+    'Line of Engagement':'Mid Block','Defensive Line':'Lower','Defensive Transition':'Regroup'},
   bus:{'Attacking Width':'Wider','Passing Directness':'Shorter','Tempo':'Lower','Patience':'Work Ball Into Box','Supporting Runs':'Both Flanks',
     'Crossing Style':'Low Crosses','Line of Engagement':'High Press','Defensive Line':'Higher',
     'Defensive Transition':'Counter-Press','Short Goalkeeper Distribution':'Yes','Trigger Press':'More Often'},
@@ -227,7 +227,7 @@ const SETS={
   fluid:{'Attacking Transition':'Patient Build-Up','Passing Directness':'Shorter','Patience':'Work Ball Into Box','Attacking Width':'Wider','Supporting Runs':'One Flank',
     'Defensive Transition':'Counter-Press','Line of Engagement':'Mid Block','Defensive Line':'Standard','Tackling':'Stay On Feet','Pressing Trap':'Trap Outside'},
   direct:{'Attacking Transition':'Patient Build-Up','Passing Directness':'Shorter','Patience':'Work Ball Into Box','Attacking Width':'Wider','Crossing Style':'Low Crosses',
-    'Defensive Line':'Deeper','Line of Engagement':'Mid Block','Defensive Transition':'Counter-Press','Defensive Line Behaviour':'Balanced'},
+    'Defensive Line':'Lower','Line of Engagement':'Mid Block','Defensive Transition':'Counter-Press','Defensive Line Behaviour':'Balanced'},
   catenaccio:{'Attacking Width':'Wider','Supporting Runs':'Both Flanks','Passing Directness':'Shorter','Patience':'Work Ball Into Box','Crossing Style':'Low Crosses',
     'Line of Engagement':'High Press','Defensive Line':'Higher','Defensive Transition':'Counter-Press','Short Goalkeeper Distribution':'Yes'},
   tiki:{'Attacking Transition':'Counter-Attack','Build-Up Strategy':'Bypass Press','Goal Kicks':'Long','Passing Directness':'More Direct','Tempo':'Higher',
@@ -274,7 +274,7 @@ const TWEAKS=[
   {when:o=>o.trigger==='muchMore',text:'Pressing that hard tires them: from 60 min, more balls in behind and fresh legs up front',why:'They press much more often',own:true},
   {when:o=>o.trigger==='less',text:'Time on the ball: Build-Up Strategy Play Through Press - pass out from the back',why:'They rarely press',own:true,
     set:{'Build-Up Strategy':'Play Through Press'}},
-  {when:o=>o.line==='high',text:'Pass Reception: into space behind their line; ST as Channel Forward',why:'They play a high line',set:{'Pass Reception':'Pass Into Space'}},
+  {when:o=>highLine(o),text:'Pass Reception: into space behind their line; ST as Channel Forward',why:'They play a high line',set:{'Pass Reception':'Pass Into Space'}},
   {when:o=>o.strength==='stronger',text:'Mentality one notch lower; consider Low Block with 5-4-1 OOP',why:'Stronger opponent (5-4-1: protecting a lead, stronger opponents)',mood:-1},
   {when:o=>o.strength==='weaker',text:'Mentality one notch higher',why:'Weaker opponent',own:true,mood:1},
   // Home/away: FM community advice (FM24-FM26 guides), nothing FM27-specific yet.
@@ -308,6 +308,7 @@ const TWEAKS=[
   {key:'weakPassers',ask:'Back line / GK weak on the ball',text:'Short Goalkeeper Distribution: prevent it; Pressing Traps toward their weaker passers',
     why:'Weak on the ball at the back (4-3-3 high press OOP targets this)',set:{'Short Goalkeeper Distribution':'Yes'}},
 ];
+const highLine=o=>o.line==='higher'||o.line==='muchHigher';
 const tweakOn=(t,o)=>t.when?t.when(o):t.value?o[t.key]===t.value:!!o[t.key];
 
 // ---------- engine ----------
@@ -323,8 +324,8 @@ function score(o){
   if(o.mentality==='defensive')add('bus',3,'Defensive / cautious mentality');
   if(['5-4-1','5-3-2'].includes(o.formation))add('bus',2,`${o.formation} is a deep block`);
   if(o.mentality==='defensive'&&['3-5-2','5-3-2','3-4-2-1','5-2-1-2 DM AM'].includes(o.formation))add('catenaccio',2,`Defensive with a back three (${o.formation})`);
-  if(o.line==='deep')add('bus',1,'Deep defensive line');
-  if(o.line==='high')add('possession',1,'High defensive line to play in behind');
+  if(o.line==='lower'||o.line==='muchLower')add('bus',1,'Deep defensive line');
+  if(highLine(o))add('possession',1,'High defensive line to play in behind');
   if(o.trigger==='more'||o.trigger==='muchMore')add('gegen',2,'Presses often: bypass it and run in behind');
   if(o.style==='unknown'&&o.mentality==='balanced')add('vtiki',1,'No clear style: mid block and counter is the safe default');
   return Object.entries(s).map(([k,r])=>({key:k,total:r.reduce((a,x)=>a+x[0],0),reasons:r.map(x=>x[1])}))
@@ -374,6 +375,7 @@ form.oopShape.innerHTML='<option value="">Not sure</option>'+Object.keys(OOPS).m
 try{const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
   for(const[k,v]of Object.entries(saved))if(form[k])form[k].type==='checkbox'?form[k].checked=v:form[k].value=v;}catch{}
 if(form.style.selectedIndex<0)form.style.value='unknown';
+if(form.line.selectedIndex<0)form.line.value='standard';
 const read=()=>Object.fromEntries([...form.querySelectorAll('select,input')].map(e=>[e.name,e.type==='checkbox'?e.checked:e.value]));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const li=(x,cls)=>`<li${cls?` class="${cls}"`:''}>${esc(x)}</li>`;
