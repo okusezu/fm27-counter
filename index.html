@@ -430,6 +430,7 @@ function recommend(o,force){
 </script>
 <script id="ui">
 const form=document.getElementById('form'),out=document.getElementById('out');
+const phone=matchMedia('(max-width:800px)');
 const KEY='fm27counter.inputs';let tile='weak',force=null; // tile = open tab; force = a clicked Plan A/B (reset by any input change)
 form.formation.innerHTML=Object.entries(SHAPES).map(([f,x])=>`<option value="${f}">${x.label||f}</option>`).join('');
 // Scout-report questions come from TWEAKS: shared key + value -> dropdown, otherwise a tick box.
@@ -492,11 +493,18 @@ function render(){
     ${r.tweaks.length?`<ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}</span></li>`).join('')}</ul>`:'<p class="why">No tweaks - the opposition setup and scout report don\'t call for any.</p>'}
     ${r.clashes.length?`<h3>Overrides in your team instructions</h3>${ul(r.clashes,'warn')}`:''}`],
   ];
+  const planTabs=pair?`<div class="tabs under">${pair.map(k=>`<button type="button" class="tab${k===r.plan?' on':''}" data-plan="${k}" aria-pressed="${k===r.plan}">${ab(k)}</button>`).join('')}</div>`:'';
+  // Phones: no section tabs - every tile stacked, one after another (Plan A / B tabs under the first).
+  if(phone.matches){
+    out.innerHTML=`<div><div class="tabs"><span class="tab label">${esc(STYLE_NAME[fam].toUpperCase())}</span></div>
+  <div class="box tabbed">${tiles[0][2]}</div>${planTabs}</div>${tiles.slice(1).map(t=>`<div class="box">${t[2]}</div>`).join('')}`;
+    return;
+  }
   const cur=tiles.find(t=>t[0]===tile)||tiles[0];
   out.innerHTML=`<div><div class="tabs" role="tablist"><span class="tab label">${esc(STYLE_NAME[fam].toUpperCase())}</span>${tiles.map(([id,name])=>
     `<button type="button" role="tab" class="tab${id===cur[0]?' on':''}" data-tile="${id}" aria-selected="${id===cur[0]}">${name}</button>`).join('')}</div>
   <div class="box tabbed" role="tabpanel">${cur[2]}</div>
-  ${pair?`<div class="tabs under">${pair.map(k=>`<button type="button" class="tab${k===r.plan?' on':''}" data-plan="${k}" aria-pressed="${k===r.plan}">${ab(k)}</button>`).join('')}</div>`:''}</div>`;
+  ${planTabs}</div>`;
 }
 form.addEventListener('change',()=>{force=null;render();});
 out.addEventListener('click',e=>{const p=e.target.closest('[data-plan]'),t=e.target.closest('[data-tile]');
@@ -509,7 +517,7 @@ function align(){
   out.style.marginTop=Math.max(0,title.getBoundingClientRect().top-panel.getBoundingClientRect().top)+'px';
 }
 const render0=render;render=()=>{render0();align();};
-addEventListener('resize',align);document.fonts?.ready.then(align);
+addEventListener('resize',align);phone.addEventListener?.('change',()=>render());document.fonts?.ready.then(align);
 render();
 </script>
 <script>
