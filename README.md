@@ -18,7 +18,7 @@ Against a Control Possession side in a 4-3-3 that presses often: the counter pla
 
 ![Overview: opponent inputs, scout report and the recommended plan](screenshots/overview.png)
 
-The setup sheet: every Team Instruction, with the setting to pick highlighted.
+The setup sheet: only the Team Instructions to change, with the setting to pick highlighted.
 
 ![Setup sheet with the recommended Team Instructions highlighted](screenshots/setup-sheet.png)
 

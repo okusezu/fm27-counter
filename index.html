@@ -488,9 +488,9 @@ function render(){
   </div>
   <div class="box">
     <h3 class="big" style="font-size:20px">SETUP SHEET: YOUR TEAM INSTRUCTIONS</h3>
-    <p class="why">Highlighted = set this. Dim row = leave the default.</p>
+    <p class="why">Only the instructions you need to change are listed - leave everything else on its default. The highlighted option in each row is the setting to pick.</p>
     <table><tr><th>Phase</th><th>Instruction</th><th>Options</th></tr>
-      ${TI.map(t=>{const s=r.set[t.name];return `<tr class="${s?'':'why'}"><td>${t.phase}</td><td>${t.name}</td>
+      ${TI.filter(t=>r.set[t.name]).map(t=>{const s=r.set[t.name];return `<tr><td>${t.phase}</td><td>${t.name}</td>
         <td>${t.opts.map(x=>x===s?`<span class="tag">${x}</span>`:x).join(' · ')}</td></tr>`;}).join('')}</table>
     <p class="why">Where a setting is a direction (higher, lower), pick the matching notch in game.</p>
   </div>`;
