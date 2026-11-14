@@ -10,7 +10,7 @@ A counter-tactic helper for Football Manager 27. Describe the opponent (their in
 
 ## Screenshots
 
-Against a possession side in a 4-3-3 that presses high: the plan it picks, why, and the tweaks from the scout report.
+Against a Control Possession side in a 4-3-3 that presses high: the counter plan, your mentality and shapes, and the tweaks from the scout report.
 
 ![Overview: opponent inputs, scout report and the recommended plan](screenshots/overview.png)
 
