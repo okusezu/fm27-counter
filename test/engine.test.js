@@ -88,7 +88,7 @@ test('your shapes: OOP beats their IP shape, IP beats their OOP shape (falls bac
   assert.equal(a.mine.oop,'4-1-4-1');assert.equal(a.mine.ip,'4-3-3');
   const b=r({formation:'4-4-2',oopShape:'5-4-1'});
   assert.equal(b.mine.oop,'4-1-4-1');assert.equal(b.mine.ip,'2-3-5 / 3-2-5');
-  assert.ok(b.mine.ipWhy.startsWith('vs their 5-4-1 out of possession'));
+  assert.equal(b.mine.ipWhy[0],'vs their 5-4-1 out of possession');
 });
 test('Tiki-Taka -> its own counter: go long over the press, compact mid block', () => {
   const x=r({style:'tiki'});
