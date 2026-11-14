@@ -1,4 +1,4 @@
-# FM27 Counter
+# Spygate - Your FM27 Assistant Manager
 
 A counter-tactic helper for Football Manager 27. Describe the opponent (their in and out of possession shapes, mentality, style, pressing, defensive line, and what the scout report says) and it gives you:
 
