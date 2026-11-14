@@ -66,8 +66,8 @@ test('scout report: where they score decides crosses vs stepping up', () => {
 test('scout report: set pieces, and overrides of the plan are reported', () => {
   assert.equal(r({setPieces:true}).set['Play for Set Pieces'],'Play for Set Pieces');
   const x=r({mentality:'defensive',formation:'5-4-1',weakAir:true}); // cautious plan says Low Crosses
-  assert.equal(x.plan,'cautious');assert.equal(x.set['Crossing Style'],'High Crosses');
-  assert.ok(x.clashes.some(c=>c.startsWith('Crossing Style: High Crosses (Weak in the air) replaces Low Crosses (plan)')));
+  assert.equal(x.plan,'cautious');assert.equal(x.set['Crossing Style'],'Floated Crosses');
+  assert.ok(x.clashes.some(c=>c.startsWith('Crossing Style: Floated Crosses (Weak in the air) replaces Low Crosses (plan)')));
 });
 test('every scout answer only sets real instructions', () => {
   checkSet(r({goalsFrom:'crosses',setPieces:true,weakAir:true,slowDef:true,counterVuln:true,longShots:true,fouls:true,lateGoals:true}).set);
