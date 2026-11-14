@@ -33,6 +33,10 @@ th,td{text-align:left;padding:3px 8px;border-bottom:1px solid var(--line)}th{col
 .tab{flex:0 0 auto;border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;background:var(--bg);color:var(--soft);padding:6px 8px;margin-bottom:-1px;white-space:nowrap;font-size:12px}
 .tab:hover{color:var(--ink)}
 .planab{margin:0 0 2px;font-size:18px;font-weight:700;letter-spacing:.05em;color:var(--ink)}
+.abpick{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+.pill{border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--soft);padding:5px 8px;font-size:12px}
+.pill:hover{color:var(--ink)}
+.pill.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:700}
 .tab.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:700}
 .tab.label{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700;letter-spacing:.05em}
 .box.tabbed{border-top-left-radius:0}
@@ -424,7 +428,7 @@ function recommend(o,force){
 </script>
 <script id="ui">
 const form=document.getElementById('form'),out=document.getElementById('out');
-const KEY='fm27counter.inputs';let force=null; // a clicked Control Possession plan tab (A/B); any input change resets it
+const KEY='fm27counter.inputs';let tile='weak',force=null; // tile = open tab; force = a clicked Plan A/B (reset by any input change)
 form.formation.innerHTML=Object.entries(SHAPES).map(([f,x])=>`<option value="${f}">${x.label||f}</option>`).join('');
 // Scout-report questions come from TWEAKS: shared key + value -> dropdown, otherwise a tick box.
 const asks={};for(const t of TWEAKS)if(t.ask)(asks[t.key]??=[]).push(t);
@@ -451,14 +455,13 @@ function render(){
   const o=read();try{localStorage.setItem(KEY,JSON.stringify(o));}catch{}
   // Plan B (high press) only appears when the squad has the pressing legs (Aggression, Work Rate + Stamina 14+).
   const r=recommend(o,force),P=PLANS[r.plan],fam=family(r.plan),pair=o.canPress?AB[fam]:null;
-  // One orange tab naming the playstyle being countered (theirs, or the best guess when 'Not sure');
-  // Playstyles with a Plan A and B (AB) show both as tabs; the one shown is inverted.
   const ab=k=>k===pair[1]?'PLAN B: HIGH PRESS':fam==='possession'?'PLAN A: BLOCK + COUNTER':'PLAN A: MID BLOCK';
-  out.innerHTML=`<div><div class="tabs"><span class="tab label">${esc(STYLE_NAME[fam].toUpperCase())}</span>${pair?pair.map(k=>
-    `<button type="button" class="tab${k===r.plan?' on':''}" data-plan="${k}" aria-pressed="${k===r.plan}">${ab(k)}</button>`).join(''):''}</div>
-  <div class="box tabbed">
-    <h2 class="oppo">ASSESSING THE OPPOSITION&#39;S WEAKNESS</h2>
-    ${pair?`<p class="planab">${r.plan===pair[0]?'PLAN A':'PLAN B'}</p>`:''}
+  const big=t=>`<h3 class="big" style="font-size:20px">${t}</h3>`;
+  // Each tile is a tab; the orange label names the playstyle being countered (theirs, or the best guess when 'Not sure').
+  const tiles=[
+    ['weak',"Opposition's weakness",`<h2 class="oppo">ASSESSING THE OPPOSITION&#39;S WEAKNESS</h2>
+    ${pair?`<div class="abpick">${pair.map(k=>`<button type="button" class="pill${k===r.plan?' on':''}" data-plan="${k}" aria-pressed="${k===r.plan}">${ab(k)}</button>`).join('')}</div>
+    <p class="planab">${r.plan===pair[0]?'PLAN A':'PLAN B'}</p>`:''}
     <h2>${pair?P.name:P.name.replace(' - A: ',' - ')}</h2>
     <p>${esc(pair?P.blurb:P.blurb.replace('Plan A: ',''))}</p>
     <p class="why">Why: ${r.reasons.length?esc(r.reasons.join(' · ')):'picked manually'}</p>
@@ -466,38 +469,36 @@ function render(){
     <ul>${li('Weak spot: '+r.shape.weak)}${li(`Shape counter: IP ${r.shape.ip} / OOP ${r.shape.oop} - ${r.shape.why}`)}${r.warns.map(w=>li(w,'warn')).join('')}</ul>
     ${r.oopC?`<h3>Their ${esc(o.oopShape)} out of possession</h3>
     <ul>${li('Weak spot: '+r.oopC.weak)}${li('Attack it with: '+r.oopC.ip)}${r.oopC.tips.map(t=>li(t)).join('')}
-      ${li('Settings added to the setup sheet: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}
-  </div></div>
-  ${r.tweaks.length||r.clashes.length?`<div class="box">
-    ${r.tweaks.length?`<h3 class="big" style="font-size:20px">Tweaks for this opponent</h3><ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}</span></li>`).join('')}</ul>`:''}
-    ${r.clashes.length?`<h3>Overrides on the setup sheet</h3>${ul(r.clashes,'warn')}`:''}
-  </div>`:''}
-  <div class="box">
-    <h3 class="big" style="font-size:20px">YOUR MENTALITY AND SHAPE</h3>
-        <div class="shape"><span>Team mentality</span><b>${esc(r.mine.mood)}</b><small>${ul(r.mine.moodWhy)}</small></div>
-        <div class="shape"><span>In possession shape</span><b>${esc(r.mine.ip)}</b><small>${ul(r.mine.ipWhy)}</small></div>
-        <div class="shape"><span>Out of possession shape</span><b>${esc(r.mine.oop)}</b><small>${ul(r.mine.oopWhy)}</small></div>
-  </div>
-  <div class="box">
-    <h3 class="big" style="font-size:20px">IN POSSESSION AND OUT OF POSSESSION TIPS</h3>
+      ${li('Settings added to the setup sheet: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}`],
+    ['tweaks','Tweaks',`${big('TWEAKS FOR THIS OPPONENT')}
+    ${r.tweaks.length?`<ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}</span></li>`).join('')}</ul>`:'<p class="why">No tweaks - the opposition setup and scout report don\'t call for any.</p>'}
+    ${r.clashes.length?`<h3>Overrides on the setup sheet</h3>${ul(r.clashes,'warn')}`:''}`],
+    ['shape','Mentality and shape',`${big('YOUR MENTALITY AND SHAPE')}
+    <div class="shape"><span>Team mentality</span><b>${esc(r.mine.mood)}</b><small>${ul(r.mine.moodWhy)}</small></div>
+    <div class="shape"><span>In possession shape</span><b>${esc(r.mine.ip)}</b><small>${ul(r.mine.ipWhy)}</small></div>
+    <div class="shape"><span>Out of possession shape</span><b>${esc(r.mine.oop)}</b><small>${ul(r.mine.oopWhy)}</small></div>`],
+    ['tips','IP / OOP tips',`${big('IN POSSESSION AND OUT OF POSSESSION TIPS')}
     <div class="cols two">
       <div><h3>In possession</h3>${ul(P.ip)}</div>
       <div><h3>Out of possession</h3>${ul(P.oopI)}</div>
     </div>
-    <h3>In-game adjustments</h3>${ul(P.adjust)}
-  </div>
-  <div class="box">
-    <h3 class="big" style="font-size:20px">SETUP SHEET: YOUR TEAM INSTRUCTIONS</h3>
+    <h3>In-game adjustments</h3>${ul(P.adjust)}`],
+    ['setup','Setup sheet',`${big('SETUP SHEET: YOUR TEAM INSTRUCTIONS')}
     <p class="why">Only the instructions you need to change are listed - leave everything else on its default unless you have specific team instructions you like to set.</p>
     <p class="why">The highlighted option in each row is the setting to pick.</p>
     <table><tr><th>Phase</th><th>Instruction</th><th>Options</th></tr>
       ${TI.filter(t=>r.set[t.name]).map(t=>{const s=r.set[t.name];return `<tr><td>${t.phase}</td><td>${t.name}</td>
         <td>${t.opts.map(x=>x===s?`<span class="tag">${x}</span>`:x).join(' · ')}</td></tr>`;}).join('')}</table>
-    <p class="why">Where a setting is a direction (higher, lower), pick the matching notch in game.</p>
-  </div>`;
+    <p class="why">Where a setting is a direction (higher, lower), pick the matching notch in game.</p>`],
+  ];
+  const cur=tiles.find(t=>t[0]===tile)||tiles[0];
+  out.innerHTML=`<div><div class="tabs" role="tablist"><span class="tab label">${esc(STYLE_NAME[fam].toUpperCase())}</span>${tiles.map(([id,name])=>
+    `<button type="button" role="tab" class="tab${id===cur[0]?' on':''}" data-tile="${id}" aria-selected="${id===cur[0]}">${name}</button>`).join('')}</div>
+  <div class="box tabbed" role="tabpanel">${cur[2]}</div></div>`;
 }
 form.addEventListener('change',()=>{force=null;render();});
-out.addEventListener('click',e=>{const b=e.target.closest('[data-plan]');if(b){force=b.dataset.plan;render();}});
+out.addEventListener('click',e=>{const p=e.target.closest('[data-plan]'),t=e.target.closest('[data-tile]');
+  if(p){force=p.dataset.plan;render();}else if(t){tile=t.dataset.tile;render();}});
 render();
 </script>
 <script>
