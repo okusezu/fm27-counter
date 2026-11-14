@@ -353,8 +353,6 @@ function render(){
         <div class="shape"><span>Team mentality</span><b>${esc(r.mine.mood)}</b><small>${esc(r.mine.moodWhy)}</small></div>
         <div class="shape"><span>In possession shape</span><b>${esc(r.mine.ip)}</b><small>${esc(r.mine.ipWhy)}</small></div>
         <div class="shape"><span>Out of possession shape</span><b>${esc(r.mine.oop)}</b><small>${esc(r.mine.oopWhy)}</small></div>
-        ${r.mine.ip!==P.ipShape||r.mine.oop!==P.oop?`<p class="why">The plan's own shape is IP ${esc(P.ipShape)} / OOP ${esc(P.oop)}.</p>`:''}
-        ${ul(P.shape)}
   </div>
   <div class="box">
     <h3 class="big" style="font-size:20px">IN POSSESSION AND OUT OF POSSESSION TIPS</h3>
