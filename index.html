@@ -501,6 +501,15 @@ function render(){
 form.addEventListener('change',()=>{force=null;render();});
 out.addEventListener('click',e=>{const p=e.target.closest('[data-plan]'),t=e.target.closest('[data-tile]');
   if(p){force=p.dataset.plan;render();}else if(t){tile=t.dataset.tile;render();}});
+// Side by side, drop the results so the folder's top edge (not its tabs) lines up with the Spygate title tile.
+function align(){
+  out.style.marginTop='0px';
+  const title=form.querySelector('.box'),panel=out.querySelector('[role=tabpanel]');
+  if(!title||!panel||out.getBoundingClientRect().left<form.getBoundingClientRect().right)return; // stacked on small screens
+  out.style.marginTop=Math.max(0,title.getBoundingClientRect().top-panel.getBoundingClientRect().top)+'px';
+}
+const render0=render;render=()=>{render0();align();};
+addEventListener('resize',align);document.fonts?.ready.then(align);
 render();
 </script>
 <script>
