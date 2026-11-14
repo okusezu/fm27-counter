@@ -61,6 +61,7 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
     <option value="direct">Direct Counter-Attack</option><option value="catenaccio">Catenaccio</option>
     <option value="bus">Park the Bus</option></select></label>
   <label>Pressing intensity<select name="trigger"><option value="">Not sure</option><option value="less">Less Often</option><option value="balanced">Balanced</option><option value="more">More Often</option><option value="muchMore">Much More Often</option></select></label>
+  <label>Their line of engagement<select name="engage"><option value="">Not sure</option><option value="low">Low Block</option><option value="mid">Mid Block</option><option value="high">High Press</option></select></label>
   <label>Their defensive line<select name="line"><option value="muchLower">Much Lower</option><option value="lower">Lower</option><option value="standard" selected>Standard</option><option value="higher">Higher</option><option value="muchHigher">Much Higher</option></select></label>
   <label>Their defensive line behaviour<select name="lineBehaviour"><option value="">Not sure</option><option value="stepUp">Step Up More</option><option value="balanced">Balanced</option><option value="dropOff">Drop Off More</option></select></label>
   <label>Compared to you, they are<select name="strength"><option value="weaker">Weaker</option><option value="even" selected>About even</option><option value="stronger">Stronger</option></select></label>
@@ -278,6 +279,12 @@ const TWEAKS=[
   // Their line, from the game's Defensive Line staff feedback: higher = vulnerable to direct through balls,
   // more offside, relies on the GK; lower = space in front of the defence and on the edge of the box.
   {when:o=>highLine(o),text:'Pass Reception: Pass Into Space, Passing Directness: More Direct - through balls behind their line; ST as Channel Forward, runs from deep to beat the offside trap',why:'They play a high line',set:{'Pass Reception':'Pass Into Space','Passing Directness':'More Direct'}},
+  // Their Line of Engagement, from the game's staff feedback: High Press is vulnerable to direct passes over it and to
+  // transitions once beaten; Mid Block gives defenders time on the ball and rarely forces high turnovers; Low Block lets the
+  // other team control possession and its counters start further from goal.
+  {when:o=>o.engage==='high',text:'Build-Up Strategy: Bypass Press - go over their press; beat it once and you attack an open pitch',why:'They engage with a High Press',own:true,set:{'Build-Up Strategy':'Bypass Press'}},
+  {when:o=>o.engage==='mid',text:'Build-Up Strategy: Play Through Press - their Mid Block gives your defenders time on the ball and rarely wins it high',why:'They engage in a Mid Block',own:true,set:{'Build-Up Strategy':'Play Through Press'}},
+  {when:o=>o.engage==='low',text:'Attacking Width: Wider, Patience: Work Ball Into Box - they let you have the ball and their final third is compact; their counters start far from your goal',why:'They sit in a Low Block',own:true,set:{'Attacking Width':'Wider','Patience':'Work Ball Into Box'}},
   // Game staff feedback: Step Up More compacts the space but is vulnerable to a well-timed pass in behind;
   // Drop Off More is safer against balls in behind but concedes more space.
   {when:o=>o.lineBehaviour==='stepUp',text:'Pass Reception: Pass Into Space - the space is compact, but a well-timed pass in behind beats them; runs from deep, a striker on the last man gets caught offside',why:'Their line steps up',own:true,set:{'Pass Reception':'Pass Into Space'}},
@@ -332,6 +339,8 @@ function score(o){
   if(o.mentality==='defensive')add('bus',3,'Defensive / cautious mentality');
   if(['5-4-1','5-3-2'].includes(o.formation))add('bus',2,`${o.formation} is a deep block`);
   if(o.mentality==='defensive'&&['3-5-2','5-3-2','3-4-2-1','5-2-1-2 DM AM'].includes(o.formation))add('catenaccio',2,`Defensive with a back three (${o.formation})`);
+  if(o.engage==='low')add('bus',1,'Low Block');
+  if(o.engage==='high')add('gegen',1,'High Press');
   if(o.line==='lower'||o.line==='muchLower')add('bus',1,'Deep defensive line');
   if(highLine(o))add('possession',1,'High defensive line to play in behind');
   if(o.trigger==='more'||o.trigger==='muchMore')add('gegen',2,'Presses often: bypass it and run in behind');

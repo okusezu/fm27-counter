@@ -150,3 +150,11 @@ test('their defensive line behaviour', () => {
   assert.ok(!r({lineBehaviour:'balanced'}).tweaks.some(t=>t.why.startsWith('Their line')));
   assert.equal(r({style:'direct'}).set['Defensive Line Behaviour'],'Drop Off More');
 });
+
+test('their line of engagement', () => {
+  assert.equal(r({engage:'high'}).set['Build-Up Strategy'],'Bypass Press');
+  assert.equal(r({engage:'mid'}).set['Build-Up Strategy'],'Play Through Press');
+  const l=r({engage:'low'}).set;assert.equal(l['Attacking Width'],'Wider');assert.equal(l['Patience'],'Work Ball Into Box');
+  assert.ok(!r({engage:''}).tweaks.some(t=>/Block|High Press/.test(t.why)));
+  for(const engage of ['low','mid','high'])checkSet(r({engage}).set);
+});
