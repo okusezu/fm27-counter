@@ -2,8 +2,8 @@
 
 A counter-tactic helper for Football Manager 27. Describe the opponent (their in and out of possession shapes, mentality, style, pressing, defensive line, and what the scout report says) and it gives you:
 
-- the best-fitting counter plan, with the reasons it was picked and the other plans one click away
-- mentality, in and out of possession instructions, and an IP/OOP role for every position
+- a counter plan for each of FM27's 10 playstyles (Control Possession to Park the Bus), with the reasons it was picked
+- mentality, in and out of possession shapes, and in and out of possession instructions
 - your formation against theirs: their weak spot, the shape that counters it, and a warning if you're outnumbered in midfield
 - tweaks from the scout report (where they score and concede, set pieces, aerial strength, slow defenders, and more)
 - a **setup sheet** listing every Team Instruction with the setting to pick highlighted, and any overrides explained

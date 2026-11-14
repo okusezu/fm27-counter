@@ -26,10 +26,7 @@ th,td{text-align:left;padding:3px 8px;border-bottom:1px solid var(--line)}th{col
 .why{color:var(--muted)}.warn{color:var(--warn)}
 .tabs{display:flex;gap:2px;overflow-x:auto;padding:0 6px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 .tab{flex:0 0 auto;border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;background:var(--bg);color:var(--soft);padding:6px 8px;margin-bottom:-1px;white-space:nowrap;font-size:12px}
-.tab:hover{color:var(--ink)}
 .tab.label{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700;letter-spacing:.05em}
-.tab[aria-selected=true]{background:var(--bg-lift);color:var(--accent);position:relative;z-index:1}
-.tab .sc{color:var(--muted);margin-left:6px;font-size:11px}
 .box.tabbed{border-top-left-radius:0}
 button{font:inherit;background:none;border:1px solid var(--line);color:var(--accent);padding:2px 8px;cursor:pointer}
 .tag{color:var(--bg);background:var(--accent);padding:0 6px;margin-right:6px}
@@ -51,15 +48,18 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
   <button type="button" id="bgToggle" aria-pressed="true" style="margin:-4px 0 0">Background animation: on</button>
 </div>
 <div class="box">
-  <h2 class="oppo">OPPOSITION PLAYSTYLE</h2>
+  <h2 class="oppo">OPPOSITION SETUP</h2>
   <label>Their formation (in possession)<select name="formation"></select></label>
   <label>Their formation (out of possession)<select name="oopShape"></select></label>
   <label>Their mentality<select name="mentality">
     <option value="defensive">Defensive / Cautious</option><option value="balanced" selected>Balanced</option><option value="attacking">Attacking</option></select></label>
-  <label>Their style<select name="style">
-    <option value="unknown">Not sure</option><option value="possession">Control possession (short passing, high full-backs)</option>
-    <option value="through">Plays through the press, works ball into box</option><option value="direct">Direct / long ball</option>
-    <option value="counter">Sits deep and counters</option><option value="wing">Wing play (wingers + overlapping full-backs, crosses)</option><option value="tiki">Tiki-Taka (much shorter passing, high press, higher line)</option></select></label>
+  <label>Their playstyle<select name="style">
+    <option value="unknown">Not sure</option><option value="possession">Control Possession</option>
+    <option value="gegen">Gegenpress</option><option value="tiki">Tiki-Taka</option>
+    <option value="vtiki">Vertical Tiki-Taka</option><option value="wing">Wing Play</option>
+    <option value="route">Route One</option><option value="fluid">Fluid Counter-Attack</option>
+    <option value="direct">Direct Counter-Attack</option><option value="catenaccio">Catenaccio</option>
+    <option value="bus">Park the Bus</option></select></label>
   <label>Their pressing<select name="press"><option value="low">Low</option><option value="mid" selected>Mid</option><option value="high">High</option></select></label>
   <label>Their defensive line<select name="line"><option value="deep">Deep</option><option value="standard" selected>Standard</option><option value="high">High</option></select></label>
   <label>Compared to you, they are<select name="strength"><option value="weaker">Weaker</option><option value="even" selected>About even</option><option value="stronger">Stronger</option></select></label>
@@ -75,37 +75,66 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
 // ---------- data: transcribed from docs/fm27-counter-tactics.pdf and docs/fm27-formations-cheatsheet.pdf ----------
 // Engine only (no DOM): test/engine.test.js runs this block on its own.
 const PLANS={
-  attacking:{tab:'Attacking 4-2-4',name:'vs Attacking 4-2-4',ipShape:'4-3-3 or 4-2-3-1',oop:'4-1-4-1',
-    blurb:"Six players committed forward, only two central midfielders, wingers don't track back. Win the midfield 3v2, absorb, then hit the space behind their wingers and full-backs.",
+  // Route One: the sheet's "vs Attacking 4-2-4" plan (front-heavy, direct sides).
+  route:{tab:'Route One',name:'vs Route One',ipShape:'4-3-3 or 4-2-3-1',oop:'4-1-4-1',
+    blurb:"Ball forward quickly, bypassing the press: long balls to a front-heavy side (often 4-2-4) with only two central midfielders and wingers who don't track back. Sit a bit deeper so nothing goes over your line, win the midfield 3v2 and the second balls, then hit the space behind their wingers and full-backs.",
     shape:['Mentality: middle of the scale - not defensive, not attacking','IP shape: 4-3-3 or 4-2-3-1','OOP shape: 4-1-4-1 - DM screens their two strikers','Never fewer than a back four out of possession'],
     ip:['Attacking Transition: counter quickly','Passing Directness: more direct','Pass Reception: into space, behind their full-backs','Progress Through: the flanks','Supporting Runs: overlap on one side for 2v1s','Once ahead: lower Tempo, raise Patience'],
     oopI:["Phase: Mid Block (Low Block if they're overrunning you)",'Defensive Line: lower','Line of Engagement: standard - stop their two CMs turning','Trigger Press: on their CMs, not their back line','Defensive Transition: drop back into shape','Tackling: Stay On Feet if their forwards dribble well'],
-    adjust:["Overrun wide: switch wide players' OOP role to Tracking Winger on both sides",'Comfortably ahead: lower mentality, drop to Low Block','Behind and they push higher: keep countering - more space opens']},
-  cautious:{tab:'Cautious',name:'vs Cautious mentality',ipShape:'2-3-5 / 3-2-5',oop:'4-4-2',
-    blurb:'They sit deep, keep bodies behind the ball and wait for the break. Be patient, stretch them wide, get runners into the box - but never leave yourself open.',
+    adjust:['Losing headers to their front line: key CB attributes Heading, Jumping Reach, Strength',"Overrun wide: switch wide players' OOP role to Tracking Winger on both sides",'Comfortably ahead: lower mentality, drop to Low Block','Behind and they push higher: keep countering - more space opens']},
+  // Park the Bus: the sheet's "vs Cautious mentality" plan.
+  bus:{tab:'Park the Bus',name:'vs Park the Bus',ipShape:'2-3-5 / 3-2-5',oop:'4-4-2',
+    blurb:'Everyone behind the ball in a deep, structured block, waiting for the break. Be patient, stretch them wide, get runners into the box - but never leave yourself open.',
     shape:['Mentality: one step attacking - not the maximum','Go further up the scale after 60-70 min if still 0-0','Keep DM + both CBs home at all times','IP 2-3-5 / 3-2-5 overloads a deep block; OOP 4-4-2 or 4-2-3-1 (formation sheet)'],
     ip:['Attacking Width: wider','Passing Directness: shorter','Tempo: slightly lower; Patience: higher','Supporting Runs: overlap / underlap for wide 2v1s','Crossing Style: low or whipped, not floated','Creative Freedom: higher with creative players','Shots From Distance: more, only with good Long Shots'],
     oopI:['Phase: High Press','Line of Engagement + Defensive Line: higher','Defensive Transition: press immediately on losing it','Short Goalkeeper Distribution: prevent it','Trigger Press: more often'],
     adjust:["Check Analysis after 20 min: shift Progress Through to the side that's working",'60 min, no goal: fresh winger or Target Forward, more crossing','1-0 up: lower mentality, switch to counter on Attacking Transition','Set pieces: tall players on corners, one on edge of box']},
   // The sheet's possession section has two answers; each is its own plan, picked by your squad's pressing legs.
-  possessionA:{tab:'Possession A',name:'vs Control Possession - A: block + counter',ipShape:'4-3-3',oop:'4-1-4-1',
+  possessionA:{tab:'Control Possession',name:'vs Control Possession - A: block + counter',ipShape:'4-3-3',oop:'4-1-4-1',
     blurb:'Short passing, high full-backs, high defensive line. Plan A: sit in a compact block and counter into the space behind.',
     shape:['Mentality: neutral or lower, 4-1-4-1 / 4-4-1-1 OOP','Rule of thumb: most players Work Rate + Stamina 14+ -> try B, else A','Expect 35-40% possession - fine if you get chances'],
     ip:['Attacking Transition: counter quickly','Passing Directness: more direct, Tempo higher','Pass Reception: into space behind their high line','Buildup Strategy: Bypass press if they press you'],
     oopI:['Phase: Mid Block, narrow and compact','Line of Engagement: lower, Defensive Line: standard','Pressing Trap: push them wide','Defensive Transition: drop back into shape'],
     adjust:["They're passing round you: narrow up, drop Line of Engagement a notch",'Counters caught offside: ST to Deep-Lying Forward, runs come from deeper','Ahead: they push more men up - stay patient, keep countering']},
-  possessionB:{tab:'Possession B',name:'vs Control Possession - B: high press',ipShape:'4-3-3',oop:'4-3-3',
+  possessionB:{tab:'Control Possession',name:'vs Control Possession - B: high press',ipShape:'4-3-3',oop:'4-3-3',
     blurb:'Short passing, high full-backs, high defensive line. Plan B: press them high and win it near their goal.',
     shape:['Mentality: higher, 4-3-3 / 4-2-3-1 OOP matched to their build-up','Rule of thumb: most players Work Rate + Stamina 14+ -> try B, else A','Expect 35-40% possession - fine if you get chances'],
     ip:['Buildup Strategy: Bypass press if they press you','Quick vertical passes after winning it high'],
     oopI:['Phase: High Press, Line of Engagement + Defensive Line higher','Trigger Press: much more often','Short Goalkeeper Distribution: prevent it','Pressing Traps toward their weaker passers'],
     adjust:["They're passing round you: narrow up, drop Line of Engagement a notch",'Counters caught offside: ST to Deep-Lying Forward, runs come from deeper','Pressing: sub early, ease Trigger Press around 60 min','Ahead: they push more men up - stay patient, keep countering']},
-  through:{tab:'Through press',name:'vs Plays through the press',ipShape:'4-2-3-1',oop:'4-2-3-1',
-    blurb:"Comfortable under pressure and only wants close-range chances. Don't press high - shut the centre, protect the box, force them wide, counter when they've committed.",
+  // Vertical Tiki-Taka: the sheet's "vs Plays through the press" plan (narrow, through the middle, into the box).
+  vtiki:{tab:'Vertical Tiki-Taka',name:'vs Vertical Tiki-Taka',ipShape:'4-2-3-1',oop:'4-2-3-1',
+    blurb:"Control possession with a narrow attacking shape: quick passes through the middle and only close-range chances. Don't press high - shut the centre, protect the box, force them wide where they have no width, counter when they've committed.",
     shape:['Mentality: middle of the scale (lower once ahead)','OOP shape: 4-2-3-1 with two DMs, or 4-1-4-1','CBs stay home - no Advanced Centre-Back','Wide players must track back (Tracking roles)'],
     ip:['Attacking Transition: counter quickly','Tempo higher, Passing Directness more direct','Deep-Lying Playmaker at DM plays the first ball forward','Buildup Strategy: Bypass press if they press you well'],
     oopI:['Phase: Mid Block','Line of Engagement: low-standard; Defensive Line: standard',"Trigger Press: less often - don't get played through",'Pressing Trap: push them toward the touchline',"Short Goalkeeper Distribution: don't bother preventing",'Defensive Transition: drop back into shape','Tackling: Stay On Feet - no fouls near the box'],
     adjust:['Chances from cutbacks: drop wide players deeper','Chances through the middle: add a third central midfielder','Ahead: lower mentality, Low Block, keep countering','Key defender attributes: Positioning, Concentration, Anticipation']},
+  // Not in the PDFs: counters worked out from FM27's playstyle descriptions, reusing the sheets' ideas
+  // (bypass a high press, run behind a high line, rest defence, back threes vs two strikers).
+  gegen:{tab:'Gegenpress',name:'vs Gegenpress',ipShape:'4-4-2 / 4-2-2-2',oop:'4-1-4-1',own:true,
+    blurb:"Extremely aggressive pressing and fast, intense attacks: a high line and a counter-press the moment they lose it. Don't play into the press - go long over it, run in behind their high line, and let them tire.",
+    shape:['Mentality: middle of the scale - Balanced','IP 4-4-2 / 4-2-2-2 - two strikers run in behind their high line','OOP 4-1-4-1 - the DM screens their quick attacks','CBs stay home - no Advanced Centre-Back'],
+    ip:['Build-Up Strategy: Bypass Press','Goal Kicks: Long - their front line squeezes short goal kicks','GK Distribution (Speed): Distribute Quickly - before their press is set','Passing Directness: More Direct','Pass Reception: Pass Into Space behind their high line','Attacking Transition: Counter-Attack - they commit bodies to win it back'],
+    oopI:['Line of Engagement: Mid Block','Defensive Line: Standard','Defensive Transition: Regroup - be in shape before their second wave','Tackling: Stay On Feet - they attack at speed, no needless fouls'],
+    adjust:["They can't press for 90 minutes - it opens up after 60",'Counters caught offside: ST to Deep-Lying Forward, runs come from deeper','Ahead: lower mentality, Low Block, keep countering']},
+  fluid:{tab:'Fluid Counter-Attack',name:'vs Fluid Counter-Attack',ipShape:'4-2-3-1',oop:'4-2-3-1',own:true,
+    blurb:"They soak up pressure, then break with fluid, expressive runners. You'll have the ball: be patient, keep a rest defence behind it, and win it back the moment you lose it so their break never starts.",
+    shape:['Mentality: middle of the scale - patience, not a charge','IP 4-2-3-1 - two DMs stay behind the ball as rest defence','OOP 4-2-3-1 - the double pivot meets their break in the middle','CBs stay home - no Advanced Centre-Back'],
+    ip:['Attacking Transition: Patient Build-Up - they sit off, no need to rush','Passing Directness: Shorter','Patience: Work Ball Into Box','Attacking Width: Wider - stretch their block','Supporting Runs: One Flank - the other full-back stays home'],
+    oopI:['Defensive Transition: Counter-Press - stop the break at source','Line of Engagement: Mid Block','Defensive Line: Standard - not high, they want the space behind','Tackling: Stay On Feet - their runners go past lunges','Pressing Trap: Trap Outside - keep their runners out of the middle'],
+    adjust:['Caught on the break: drop the Defensive Line a notch','No way through after 60 min: fresh winger; Shots From Distance only with good Long Shots','Ahead: they have to come out - switch to Counter-Attack','Key DM attributes: Positioning, Anticipation, Work Rate']},
+  direct:{tab:'Direct Counter-Attack',name:'vs Direct Counter-Attack',ipShape:'4-3-3',oop:'4-1-4-1',own:true,
+    blurb:"They soak up pressure, then go straight forward with direct, structured counters - early balls into the channels for quick forwards. Keep the ball, but never leave space in behind: a deeper line and a DM screening the first pass.",
+    shape:['Mentality: middle of the scale','IP 4-3-3 - the DM stays home as the screen','OOP 4-1-4-1 - the DM screens their first ball forward','CBs stay home - no Advanced Centre-Back'],
+    ip:['Attacking Transition: Patient Build-Up','Passing Directness: Shorter','Patience: Work Ball Into Box','Attacking Width: Wider','Crossing Style: Low Crosses - no floated balls for them to clear and break from'],
+    oopI:['Defensive Line: Deeper - no space behind for their early balls','Line of Engagement: Mid Block','Defensive Transition: Counter-Press - press the first pass before it goes long','Defensive Line Behaviour: Balanced - no Offside Trap against runners from deep'],
+    adjust:['Balls in behind still hurting: drop the line another notch, fastest CB on the cover side','Their target forward winning headers: key CB attributes Heading, Jumping Reach, Strength','Ahead: they have to come out - switch to Counter-Attack','No way through after 60 min: fresh winger, more crossing']},
+  catenaccio:{tab:'Catenaccio',name:'vs Catenaccio',ipShape:'4-4-2 / 4-2-2-2',oop:'4-4-2',own:true,
+    blurb:"They nullify your attack with three centre-backs and a deep, disciplined block. Pin their back three with two strikers, attack the space around their wing-backs, and be patient - but keep bodies home for their counter.",
+    shape:['Mentality: one step attacking - not the maximum','IP 4-4-2 / 4-2-2-2 - two strikers occupy their centre-backs (formation sheet: vs back threes)','OOP 4-4-2','Keep DM + both CBs home at all times'],
+    ip:['Attacking Width: Wider - stretch their wing-backs','Supporting Runs: Both Flanks - 2v1s on their wing-backs','Passing Directness: Shorter','Patience: Work Ball Into Box','Crossing Style: Low Crosses - three CBs win the high ones','Shots From Distance: more, only with good Long Shots'],
+    oopI:['Line of Engagement: High Press - pin them in','Defensive Line: Higher','Defensive Transition: Counter-Press','Short Goalkeeper Distribution: prevent it'],
+    adjust:["Check Analysis after 20 min: shift Progress Through to the side that's working",'60 min, no goal: fresh winger or Target Forward','1-0 up: lower mentality, switch to Counter-Attack on Attacking Transition','Set pieces: tall players on corners - often your best chance against them']},
   // Not in the PDFs: worked out from the formation sheet (5-4-1 covers the width of the box, space
   // behind wing-backs/full-backs) using only instruction and role names that appear in the sheets.
   // FM27's Tiki-Taka style (in-game description): much shorter passing to feet, play through press, low crosses,
@@ -122,11 +151,12 @@ const PLANS={
     shape:['Mentality: middle of the scale (a step lower vs stronger sides)','IP shape: 3-4-2-1 / OOP shape: 5-4-1 - the back five covers the width of the box','Wide players always track back: 2v1 on each flank against winger + full-back','CBs stay in the box - no Advanced Centre-Back'],
     ip:['Attacking Transition: counter quickly','Pass Reception: into space, behind their full-backs','Progress Through: the flanks - attack the side their full-back bombs on from','Passing Directness: more direct','Once ahead: lower Tempo, raise Patience'],
     oopI:["Phase: Mid Block (Low Block if they're crossing at will)",'Line of Engagement: standard','Defensive Line: standard - a notch lower against quick wingers','Pressing Trap: push them inside, away from the touchline and into your crowded centre','Trigger Press: on their full-backs when they receive - stop the overlap at source','Defensive Transition: drop back into shape','Tackling: Stay On Feet - wide free kicks become more crosses','Cross Engagement: Stop Crosses - attack every cross'],
-    adjust:['Still crossed from one side: Trigger Press their full-back harder on that side and keep the Tracking Winger there','Losing headers in the box: bring on your tallest defender; key CB attributes Heading, Jumping Reach, Positioning, Strength','Cutbacks hurting you: drop wide players deeper','Ahead: lower mentality, Low Block, keep the back five and keep countering','They stop going wide and come through the middle: switch to the Plays through the press plan']},
+    adjust:['Still crossed from one side: Trigger Press their full-back harder on that side and keep the Tracking Winger there','Losing headers in the box: bring on your tallest defender; key CB attributes Heading, Jumping Reach, Positioning, Strength','Cutbacks hurting you: drop wide players deeper','Ahead: lower mentality, Low Block, keep the back five and keep countering','They stop going wide and come through the middle: switch to the Vertical Tiki-Taka tab']},
 };
+const TABS=['possession','gegen','tiki','vtiki','wing','route','fluid','direct','catenaccio','bus'];
 // Team mentality scale; each plan's start point reads its 'Mentality:' line on the sheet (middle/neutral = Balanced, one step/higher = Attacking).
 const MOODS=['Very Defensive','Cautious','Balanced','Attacking','Very Attacking'];
-const PLAN_MOOD={attacking:2,cautious:3,possessionA:2,possessionB:3,through:2,tiki:2,wing:2};
+const PLAN_MOOD={route:2,bus:3,possessionA:2,possessionB:3,vtiki:2,tiki:2,wing:2,gegen:2,fluid:2,direct:2,catenaccio:3};
 // Their shape: central players, weak spot (formation sheet / counter sheet) and the shape that counters it.
 const SHAPES={
   '4-4-2':{mid:2,weak:'Outnumbered in central midfield',ip:'4-3-3',oop:'4-1-4-1',why:'Two-man midfield: 4-3-3 gives a natural 3v2'},
@@ -178,18 +208,26 @@ const TI=[
 ].map(([phase,name,opts,ok])=>({phase,name,opts,ok:!!ok}));
 // Each plan's bullets turned into settings on that list. Anything not set: leave the default.
 const SETS={
-  attacking:{'Attacking Transition':'Counter-Attack','Passing Directness':'More Direct','Pass Reception':'Pass Into Space','Supporting Runs':'One Flank',
+  route:{'Attacking Transition':'Counter-Attack','Passing Directness':'More Direct','Pass Reception':'Pass Into Space','Supporting Runs':'One Flank',
     'Line of Engagement':'Mid Block','Defensive Line':'Deeper','Defensive Transition':'Regroup'},
-  cautious:{'Attacking Width':'Wider','Passing Directness':'Shorter','Tempo':'Lower','Patience':'Work Ball Into Box','Supporting Runs':'Both Flanks',
+  bus:{'Attacking Width':'Wider','Passing Directness':'Shorter','Tempo':'Lower','Patience':'Work Ball Into Box','Supporting Runs':'Both Flanks',
     'Crossing Style':'Low Crosses','Line of Engagement':'High Press','Defensive Line':'Higher',
     'Defensive Transition':'Counter-Press','Short Goalkeeper Distribution':'Yes','Trigger Press':'More Often'},
   possessionA:{'Attacking Transition':'Counter-Attack','Passing Directness':'More Direct','Tempo':'Higher','Pass Reception':'Pass Into Space',
     'Line of Engagement':'Mid Block','Defensive Line':'Standard','Pressing Trap':'Trap Outside','Defensive Transition':'Regroup'},
   possessionB:{'Attacking Transition':'Counter-Attack','Line of Engagement':'High Press','Defensive Line':'Higher',
     'Trigger Press':'Much More Often','Short Goalkeeper Distribution':'Yes'},
-  through:{'Attacking Transition':'Counter-Attack','Tempo':'Higher','Passing Directness':'More Direct',
+  vtiki:{'Attacking Transition':'Counter-Attack','Tempo':'Higher','Passing Directness':'More Direct',
     'Line of Engagement':'Mid Block','Defensive Line':'Standard','Trigger Press':'Less Often','Pressing Trap':'Trap Outside',
     'Short Goalkeeper Distribution':'No','Defensive Transition':'Regroup','Tackling':'Stay On Feet'},
+  gegen:{'Build-Up Strategy':'Bypass Press','Goal Kicks':'Long','GK Distribution (Speed)':'Distribute Quickly','Passing Directness':'More Direct','Pass Reception':'Pass Into Space',
+    'Attacking Transition':'Counter-Attack','Line of Engagement':'Mid Block','Defensive Line':'Standard','Defensive Transition':'Regroup','Tackling':'Stay On Feet'},
+  fluid:{'Attacking Transition':'Patient Build-Up','Passing Directness':'Shorter','Patience':'Work Ball Into Box','Attacking Width':'Wider','Supporting Runs':'One Flank',
+    'Defensive Transition':'Counter-Press','Line of Engagement':'Mid Block','Defensive Line':'Standard','Tackling':'Stay On Feet','Pressing Trap':'Trap Outside'},
+  direct:{'Attacking Transition':'Patient Build-Up','Passing Directness':'Shorter','Patience':'Work Ball Into Box','Attacking Width':'Wider','Crossing Style':'Low Crosses',
+    'Defensive Line':'Deeper','Line of Engagement':'Mid Block','Defensive Transition':'Counter-Press','Defensive Line Behaviour':'Balanced'},
+  catenaccio:{'Attacking Width':'Wider','Supporting Runs':'Both Flanks','Passing Directness':'Shorter','Patience':'Work Ball Into Box','Crossing Style':'Low Crosses',
+    'Line of Engagement':'High Press','Defensive Line':'Higher','Defensive Transition':'Counter-Press','Short Goalkeeper Distribution':'Yes'},
   tiki:{'Attacking Transition':'Counter-Attack','Build-Up Strategy':'Bypass Press','Goal Kicks':'Long','Passing Directness':'More Direct','Tempo':'Higher',
     'Pass Reception':'Pass Into Space','Line of Engagement':'Mid Block','Defensive Line':'Standard','Trigger Press':'Less Often','Pressing Trap':'Trap Outside',
     'Defensive Transition':'Regroup','Tackling':'Stay On Feet','Short Goalkeeper Distribution':'No'},
@@ -266,23 +304,22 @@ const TWEAKS=[
 const tweakOn=(t,o)=>t.when?t.when(o):t.value?o[t.key]===t.value:!!o[t.key];
 
 // ---------- engine ----------
+const STYLE_NAME={possession:'Control Possession',gegen:'Gegenpress',tiki:'Tiki-Taka',vtiki:'Vertical Tiki-Taka',wing:'Wing Play',route:'Route One',fluid:'Fluid Counter-Attack',direct:'Direct Counter-Attack',catenaccio:'Catenaccio',bus:'Park the Bus'};
 function score(o){
   const s=Object.fromEntries(Object.keys(PLANS).map(k=>[k,[]]));
   const add=(k,n,why)=>(k==='possession'?['possessionA','possessionB']:[k]).forEach(x=>s[x].push([n,why]));
-  if(o.style==='wing')add('wing',4,'Wing play: wingers, overlapping full-backs and crosses');
-  if(o.style==='tiki'){add('tiki',5,'Tiki-Taka: extreme control possession with a high press');add('possession',2,'Tiki-Taka is a Control Possession variant');}
-  if(o.mentality==='attacking')add('attacking',3,'Attacking mentality');
-  if(['4-2-4','2-3-5','3-4-3','4-4-2'].includes(o.formation))add('attacking',2,`${o.formation} commits players forward`);
-  if(o.style==='direct')add('attacking',2,'Direct play: lower line, screen the strikers, counter');
-  if(o.mentality==='defensive')add('cautious',3,'Defensive / cautious mentality');
-  if(['5-4-1','5-3-2'].includes(o.formation))add('cautious',2,`${o.formation} is a deep block`);
-  if(o.style==='counter')add('cautious',2,'Sits deep and waits for the break');
-  if(o.line==='deep')add('cautious',1,'Deep defensive line');
-  if(o.style==='possession')add('possession',4,'Control-possession style');
+  // Their playstyle (the game's list) is the main signal; the rest nudges.
+  if(o.style&&o.style!=='unknown')add(o.style,5,`Plays ${STYLE_NAME[o.style]}`);
+  if(o.style==='tiki'||o.style==='vtiki')add('possession',2,'A Control Possession variant');
+  if(o.mentality==='attacking')add('route',3,'Attacking mentality');
+  if(['4-2-4','2-3-5','3-4-3','4-4-2'].includes(o.formation))add('route',2,`${o.formation} commits players forward`);
+  if(o.mentality==='defensive')add('bus',3,'Defensive / cautious mentality');
+  if(['5-4-1','5-3-2'].includes(o.formation))add('bus',2,`${o.formation} is a deep block`);
+  if(o.mentality==='defensive'&&['3-5-2','5-3-2','3-4-2-1','5-2-1-2 DM AM'].includes(o.formation))add('catenaccio',2,`Defensive with a back three (${o.formation})`);
+  if(o.line==='deep')add('bus',1,'Deep defensive line');
   if(o.line==='high')add('possession',1,'High defensive line to play in behind');
-  if(o.press==='high'&&o.style!=='through')add('possession',1,'High press: bypass it and counter');
-  if(o.style==='through')add('through',4,'Plays through the press into the box');
-  if(o.style==='unknown'&&o.mentality==='balanced')add('through',1,'No clear style: mid block and counter is the safe default');
+  if(o.press==='high')add('gegen',2,'High press: bypass it and run in behind');
+  if(o.style==='unknown'&&o.mentality==='balanced')add('vtiki',1,'No clear style: mid block and counter is the safe default');
   return Object.entries(s).map(([k,r])=>({key:k,total:r.reduce((a,x)=>a+x[0],0),reasons:r.map(x=>x[1])}))
     .sort((a,b)=>b.total-a.total);
 }
@@ -290,7 +327,7 @@ function recommend(o,force){
   const ranked=score(o);
   let plan=force||ranked[0].key;
   // Possession A or B: the sheet's rule of thumb (Work Rate + Stamina 14+ -> press), never press a stronger side.
-  if(!force&&plan.startsWith('possession'))plan=o.canPress&&o.strength!=='stronger'?'possessionB':'possessionA';
+  if(plan==='possession'||!force&&plan.startsWith('possession'))plan=o.canPress&&o.strength!=='stronger'?'possessionB':'possessionA';
   const tweaks=TWEAKS.filter(t=>tweakOn(t,o));
   const shape=SHAPES[o.formation],oop=PLANS[plan].oop;
   const warns=[[oop,'plan'],[shape.oop,'shape counter']].filter(([f])=>MID[f]<shape.mid)
@@ -318,7 +355,7 @@ function recommend(o,force){
 </script>
 <script id="ui">
 const form=document.getElementById('form'),out=document.getElementById('out');
-const KEY='fm27counter.inputs';let force=null;
+const KEY='fm27counter.inputs';
 form.formation.innerHTML=Object.entries(SHAPES).map(([f,x])=>`<option value="${f}">${x.label||f}</option>`).join('');
 // Scout-report questions come from TWEAKS: shared key + value -> dropdown, otherwise a tick box.
 const asks={};for(const t of TWEAKS)if(t.ask)(asks[t.key]??=[]).push(t);
@@ -328,17 +365,16 @@ document.getElementById('scout').innerHTML='<h3>Scout report</h3>'+Object.entrie
 form.oopShape.innerHTML='<option value="">Not sure</option>'+Object.keys(OOPS).map(f=>`<option>${f}</option>`).join('');
 try{const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
   for(const[k,v]of Object.entries(saved))if(form[k])form[k].type==='checkbox'?form[k].checked=v:form[k].value=v;}catch{}
+if(form.style.selectedIndex<0)form.style.value='unknown';
 const read=()=>Object.fromEntries([...form.querySelectorAll('select,input')].map(e=>[e.name,e.type==='checkbox'?e.checked:e.value]));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const li=(x,cls)=>`<li${cls?` class="${cls}"`:''}>${esc(x)}</li>`;
 const ul=(l,cls)=>`<ul>${l.map(x=>li(x,cls)).join('')}</ul>`;
 function render(){
   const o=read();try{localStorage.setItem(KEY,JSON.stringify(o));}catch{}
-  const r=recommend(o,force),P=PLANS[r.plan],auto=force?recommend(o).plan:r.plan;
-  const score=Object.fromEntries(r.ranked.map(x=>[x.key,x.total]));
-  // Firefox-style tabs, fixed order; ★ = the tool's pick, clicking it goes back to automatic.
-  out.innerHTML=`<div><nav class="tabs" role="tablist" aria-label="Counter plans"><span class="tab label" aria-hidden="true">PLAYSTYLES</span>${Object.keys(PLANS).map(k=>
-    `<button class="tab" role="tab" aria-selected="${k===r.plan}" data-plan="${k===auto?'':k}">${k===auto?'★ ':''}${esc(PLANS[k].tab)}<span class="sc">${score[k]}</span></button>`).join('')}</nav>
+  const r=recommend(o),P=PLANS[r.plan];
+  // One orange tab naming the playstyle being countered (theirs, or the best guess when 'Not sure').
+  out.innerHTML=`<div><div class="tabs"><span class="tab label">${esc(STYLE_NAME[r.plan.startsWith('possession')?'possession':r.plan].toUpperCase())}</span></div>
   <div class="box tabbed">
     <h2 class="oppo">ASSESSING THE OPPOSITION&#39;S WEAKNESS</h2>
     <h2>${P.name}</h2>
@@ -377,8 +413,7 @@ function render(){
     <p class="why">Where a setting is a direction (higher, lower), pick the matching notch in game.</p>
   </div>`;
 }
-form.addEventListener('change',()=>{force=null;render();});
-out.addEventListener('click',e=>{const b=e.target.closest('[data-plan]');if(b){force=b.dataset.plan||null;render();}});
+form.addEventListener('change',render);
 render();
 </script>
 <script>

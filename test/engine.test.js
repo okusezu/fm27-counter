@@ -3,7 +3,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
 const src=html.match(/<script id="engine">([\s\S]*?)<\/script>/)[1];
-const {recommend,PLANS,TI,SETS,OOPS,TWEAKS}=vm.runInNewContext(src+'\n;({recommend,PLANS,TI,SETS,OOPS,TWEAKS})');
+const {recommend,PLANS,TI,SETS,OOPS,TWEAKS,TABS}=vm.runInNewContext(src+'\n;({recommend,PLANS,TI,SETS,OOPS,TWEAKS,TABS})');
 const base={formation:'4-4-2',mentality:'balanced',style:'unknown',press:'mid',line:'standard',strength:'even',dribblers:false,weakPassers:false,canPress:false};
 const r=o=>recommend({...base,...o});
 const opts=Object.fromEntries(TI.map(t=>[t.name,t.opts]));
@@ -14,11 +14,14 @@ test('possession side -> plan A without pressing legs, B with, never B vs a stro
   assert.equal(r({style:'possession',canPress:true}).plan,'possessionB');
   assert.equal(r({style:'possession',canPress:true,strength:'stronger'}).plan,'possessionA');
 });
-test('attacking 4-2-4 -> Attacking plan', () => assert.equal(r({formation:'4-2-4',mentality:'attacking'}).plan,'attacking'));
-test('defensive 5-4-1 -> Cautious plan', () => assert.equal(r({formation:'5-4-1',mentality:'defensive'}).plan,'cautious'));
-test('plays through press -> through plan', () => assert.equal(r({style:'through'}).plan,'through'));
+test('attacking 4-2-4 -> Route One plan', () => assert.equal(r({formation:'4-2-4',mentality:'attacking'}).plan,'route'));
+test('defensive 5-4-1 -> Park the Bus plan', () => assert.equal(r({formation:'5-4-1',mentality:'defensive'}).plan,'bus'));
+test('every playstyle picks its own tab', () => {
+  for(const k of TABS)assert.ok(recommend({...base,style:k}).plan.startsWith(k),k);
+  assert.equal(recommend(base,'possession').plan,'possessionA');assert.equal(recommend({...base,canPress:true},'possession').plan,'possessionB');
+});
 test('count the middle warns when outnumbered', () => {
-  const x=r({formation:'3-4-2-1',style:'counter',mentality:'defensive'}); // cautious plan OOP 4-4-2 (2) vs their 4
+  const x=r({formation:'3-4-2-1',style:'bus',mentality:'defensive'}); // bus plan OOP 4-4-2 (2) vs their 4
   assert.ok(x.warns.some(w=>w.includes('4-4-2')));
   assert.equal(r({formation:'4-4-2',mentality:'attacking'}).warns.length,0);
 });
@@ -44,15 +47,15 @@ test('setup sheet follows the plan and tweaks', () => {
   assert.equal(r({style:'wing',dribblers:true}).set['Tackling'],'Stay On Feet');
 });
 test('their OOP shape fills gaps in the setup sheet, plan wins clashes', () => {
-  const x=r({style:'through',oopShape:'4-1-4-1'}); // plan sets More Direct; leaves Build-Up Strategy alone
+  const x=r({style:'vtiki',oopShape:'4-1-4-1'}); // plan sets More Direct; leaves Build-Up Strategy alone
   assert.equal(x.set['Build-Up Strategy'],'Play Through Press');
   assert.equal(x.clashes.map(c=>c.split(':')[0]).join(),'Passing Directness');
-  assert.equal(r({style:'through',oopShape:'4-1-4-1',press:'high'}).set['Build-Up Strategy'],'Bypass Press'); // tweak wins
-  assert.equal(r({style:'through',oopShape:'5-4-1'}).set['Attacking Width'],'Wider');
+  assert.equal(r({style:'vtiki',oopShape:'4-1-4-1',press:'high'}).set['Build-Up Strategy'],'Bypass Press'); // tweak wins
+  assert.equal(r({style:'vtiki',oopShape:'5-4-1'}).set['Attacking Width'],'Wider');
   assert.equal(r({}).oopC,null);
 });
 test('Bypass press only when they press (PDF: "if they press you")', () => {
-  for(const style of ['possession','through'])for(const canPress of [false,true]){
+  for(const style of ['possession','vtiki'])for(const canPress of [false,true]){
     assert.equal(r({style,canPress}).set['Build-Up Strategy'],undefined);
     assert.equal(r({style,canPress,press:'high'}).set['Build-Up Strategy'],'Bypass Press');
   }
@@ -65,8 +68,8 @@ test('scout report: where they score decides crosses vs stepping up', () => {
 });
 test('scout report: set pieces, and overrides of the plan are reported', () => {
   assert.equal(r({setPieces:true}).set['Play for Set Pieces'],'Play for Set Pieces');
-  const x=r({mentality:'defensive',formation:'5-4-1',weakAir:true}); // cautious plan says Low Crosses
-  assert.equal(x.plan,'cautious');assert.equal(x.set['Crossing Style'],'Floated Crosses');
+  const x=r({mentality:'defensive',formation:'5-4-1',weakAir:true}); // bus plan says Low Crosses
+  assert.equal(x.plan,'bus');assert.equal(x.set['Crossing Style'],'Floated Crosses');
   assert.ok(x.clashes.some(c=>c.startsWith('Crossing Style: Floated Crosses (Weak in the air) replaces Low Crosses (plan)')));
 });
 test('every scout answer only sets real instructions', () => {
@@ -108,10 +111,10 @@ test('5-2-1-2 DM AM: attack the lone wing-backs, 4-1-4-1 matches their three cen
   assert.equal(x.shape.weak,'Wing-backs carry the whole flank alone');
 });
 test('team mentality: plan start point, one notch per strength/away tweak, clamped to the scale', () => {
-  assert.equal(r({style:'through'}).mine.mood,'Balanced');
+  assert.equal(r({style:'vtiki'}).mine.mood,'Balanced');
   assert.equal(r({formation:'5-4-1',mentality:'defensive'}).mine.mood,'Attacking');
-  assert.equal(r({style:'through',strength:'stronger',venue:'away'}).mine.mood,'Cautious'); // never Very Defensive pre-match
-  assert.equal(r({style:'through',strength:'weaker',venue:'away'}).mine.mood,'Attacking');
+  assert.equal(r({style:'vtiki',strength:'stronger',venue:'away'}).mine.mood,'Cautious'); // never Very Defensive pre-match
+  assert.equal(r({style:'vtiki',strength:'weaker',venue:'away'}).mine.mood,'Attacking');
   for(const k of Object.keys(PLANS))assert.ok(recommend(base,k).mine.mood,k);
 });
 
