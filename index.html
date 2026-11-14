@@ -470,9 +470,6 @@ function render(){
     ${r.oopC?`<h3>Their ${esc(o.oopShape)} out of possession</h3>
     <ul>${li('Weak spot: '+r.oopC.weak)}${li('Attack it with: '+r.oopC.ip)}${r.oopC.tips.map(t=>li(t)).join('')}
       ${li('Settings added to the setup sheet: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}`],
-    ['tweaks','Tweaks',`${big('TWEAKS FOR THIS OPPONENT')}
-    ${r.tweaks.length?`<ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}</span></li>`).join('')}</ul>`:'<p class="why">No tweaks - the opposition setup and scout report don\'t call for any.</p>'}
-    ${r.clashes.length?`<h3>Overrides on the setup sheet</h3>${ul(r.clashes,'warn')}`:''}`],
     ['shape','Mentality and shape',`${big('YOUR MENTALITY AND SHAPE')}
     <div class="shape"><span>Team mentality</span><b>${esc(r.mine.mood)}</b><small>${ul(r.mine.moodWhy)}</small></div>
     <div class="shape"><span>In possession shape</span><b>${esc(r.mine.ip)}</b><small>${ul(r.mine.ipWhy)}</small></div>
@@ -490,6 +487,9 @@ function render(){
       ${TI.filter(t=>r.set[t.name]).map(t=>{const s=r.set[t.name];return `<tr><td>${t.phase}</td><td>${t.name}</td>
         <td>${t.opts.map(x=>x===s?`<span class="tag">${x}</span>`:x).join(' · ')}</td></tr>`;}).join('')}</table>
     <p class="why">Where a setting is a direction (higher, lower), pick the matching notch in game.</p>`],
+    ['tweaks','Tweaks',`${big('TWEAKS FOR THIS OPPONENT')}
+    ${r.tweaks.length?`<ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}</span></li>`).join('')}</ul>`:'<p class="why">No tweaks - the opposition setup and scout report don\'t call for any.</p>'}
+    ${r.clashes.length?`<h3>Overrides on the setup sheet</h3>${ul(r.clashes,'warn')}`:''}`],
   ];
   const cur=tiles.find(t=>t[0]===tile)||tiles[0];
   out.innerHTML=`<div><div class="tabs" role="tablist"><span class="tab label">${esc(STYLE_NAME[fam].toUpperCase())}</span>${tiles.map(([id,name])=>

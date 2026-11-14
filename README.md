@@ -14,7 +14,7 @@ A counter-tactic helper for Football Manager 27. Describe the opponent (their in
 
 ## Screenshots
 
-Against a Control Possession side in a 4-3-3 that presses often: the opposition's weakness tile, with Plan A / Plan B. Tweaks, mentality and shape, tips and the setup sheet are the other tabs.
+Against a Control Possession side in a 4-3-3 that presses often: the opposition's weakness tile, with Plan A / Plan B. Mentality and shape, tips, the setup sheet and tweaks are the other tabs.
 
 ![Overview: opponent inputs, scout report and the recommended plan](screenshots/overview.png)
 
