@@ -41,7 +41,7 @@ test('every plan, tweak and shape-counter setting names a real instruction and o
 test('setup sheet follows the plan and tweaks', () => {
   assert.equal(r({style:'possession',canPress:true}).set['Line of Engagement'],'High Press');
   assert.equal(r({style:'possession'}).set['Line of Engagement'],'Mid Block');
-  assert.equal(r({style:'wing',dribblers:true}).set['Tackling'],'Ease Off');
+  assert.equal(r({style:'wing',dribblers:true}).set['Tackling'],'Stay On Feet');
 });
 test('their OOP shape fills gaps in the setup sheet, plan wins clashes', () => {
   const x=r({style:'through',oopShape:'4-1-4-1'}); // plan sets More Direct; leaves Build-Up Strategy alone
@@ -59,7 +59,7 @@ test('Bypass press only when they press (PDF: "if they press you")', () => {
 });
 test('scout report: where they score decides crosses vs stepping up', () => {
   const c=r({goalsFrom:'crosses'}).set,m=r({goalsFrom:'middle'}).set;
-  assert.equal(c['Cross Engagement'],'Contest');assert.equal(c['Pressing Trap'],'Trap Inside');
+  assert.equal(c['Cross Engagement'],'Stop Crosses');assert.equal(c['Pressing Trap'],'Trap Inside');
   assert.equal(m['Defensive Line Behaviour'],'Step Up');assert.equal(m['Pressing Trap'],'Trap Outside');
   assert.equal(r({}).set['Defensive Line Behaviour'],undefined);
 });
@@ -98,7 +98,7 @@ test('Tiki-Taka -> its own counter: go long over the press, compact mid block', 
 });
 test('home/away: drop a notch away unless they are weaker', () => {
   const away=r({venue:'away'}),awayWeak=r({venue:'away',strength:'weaker'}),home=r({venue:'home'});
-  assert.ok(away.tweaks.some(t=>t.text.startsWith('Mentality one notch lower')));assert.equal(away.set['Tackling'],'Ease Off');
+  assert.ok(away.tweaks.some(t=>t.text.startsWith('Mentality one notch lower')));assert.equal(away.set['Tackling'],'Stay On Feet');
   assert.ok(awayWeak.tweaks.some(t=>t.text.startsWith('Away to a weaker side')));assert.ok(!awayWeak.tweaks.some(t=>t.text.startsWith('Mentality one notch lower than at home')));
   assert.ok(home.tweaks.some(t=>t.why==='Home'));
 });
