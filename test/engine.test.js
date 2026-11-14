@@ -73,3 +73,8 @@ test('every scout answer only sets real instructions', () => {
   checkSet(r({goalsFrom:'crosses',setPieces:true,weakAir:true,slowDef:true,counterVuln:true,longShots:true,fouls:true,lateGoals:true}).set);
   checkSet(r({goalsFrom:'middle',strongAir:true}).set);
 });
+test('scout report: where they concede decides wide vs central attack', () => {
+  assert.equal(r({concedeFrom:'crosses'}).set['Attacking Width'],'Wider');
+  assert.equal(r({concedeFrom:'middle'}).set['Attacking Width'],'Narrower');
+  checkSet(r({concedeFrom:'crosses'}).set);checkSet(r({concedeFrom:'middle'}).set);
+});

@@ -5,8 +5,18 @@ A counter-tactic helper for Football Manager 27. Describe the opponent (their in
 - the best-fitting counter plan, with the reasons it was picked and the other plans one click away
 - mentality, in and out of possession instructions, and an IP/OOP role for every position
 - your formation against theirs: their weak spot, the shape that counters it, and a warning if you're outnumbered in midfield
-- tweaks from the scout report (set pieces, crosses vs through the middle, aerial strength, slow defenders, and more)
+- tweaks from the scout report (where they score and concede, set pieces, aerial strength, slow defenders, and more)
 - a **setup sheet** listing every Team Instruction with the setting to pick highlighted, and any overrides explained
+
+## Screenshots
+
+Against a possession side in a 4-3-3 that presses high: the plan it picks, why, and the tweaks from the scout report.
+
+![Overview: opponent inputs, scout report and the recommended plan](screenshots/overview.png)
+
+The setup sheet: every Team Instruction, with the setting to pick highlighted.
+
+![Setup sheet with the recommended Team Instructions highlighted](screenshots/setup-sheet.png)
 
 ## Use it
 
