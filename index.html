@@ -389,6 +389,8 @@ function recommend(o,force){
   const dots=(head,why)=>[head,...why.split(/: |; |, /).map(x=>x.replace(/^and /,''))];
   const mine={ip:oopC?oopC.ip.split(' - ')[0]:shape.ip,ipWhy:oopC?dots(`vs their ${o.oopShape} out of possession`,oopC.ip.split(' - ')[1]||oopC.weak):dots(`vs their ${o.formation}`,shape.why),
     oop:shape.oop,oopWhy:dots(`vs their ${o.formation} in possession`,shape.why)};
+  // Formation sheet: 4-4-1-1's weak spot is 'Wide men need high Work Rate'.
+  if(mine.oop==='4-4-1-1'&&!o.canPress)warns.push("Your OOP 4-4-1-1: the wide men need high Work Rate (formation sheet) - without the legs, use 4-1-4-1 (the DM still screens their pivot)");
   const moodT=tweaks.filter(t=>t.mood);
   const m=PLAN_MOOD[plan]+moodT.reduce((n,t)=>n+t.mood,0);
   // Never Very Defensive before kick-off (user): it rarely gets a result; only late on, holding a lead or a player down.

@@ -175,3 +175,10 @@ test('their passing directness', () => {
   assert.ok(!r({directness:'standard'}).tweaks.some(t=>/pass short|play direct/.test(t.why)));
   checkSet(r({directness:'shorter'}).set);checkSet(r({directness:'moreDirect'}).set);
 });
+
+test('4-4-1-1 OOP warns about Work Rate unless the squad has pressing legs', () => {
+  const w=x=>x.warns.some(t=>t.includes('4-4-1-1'));
+  assert.equal(r({formation:'4-3-3'}).mine.oop,'4-4-1-1');
+  assert.ok(w(r({formation:'4-3-3'})));assert.ok(!w(r({formation:'4-3-3',canPress:true})));
+  assert.ok(!w(r({formation:'4-4-2'})));
+});
