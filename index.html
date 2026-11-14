@@ -13,6 +13,8 @@ main{display:grid;grid-template-columns:300px 1fr;gap:16px;max-width:1200px;marg
 h1{font-size:15px;margin:0 0 12px;color:var(--accent)}
 .ball{margin:0 auto 12px;width:max-content;font:700 11px/1 ui-monospace,monospace;color:var(--soft)}
 .ball .h{color:var(--ink)}.ball .l{color:var(--muted)}.ball .p{color:var(--line)}
+.ball *{pointer-events:none} /* frames replace these spans; hit-testing the <pre> keeps enter/leave reliable */
+.ball .s{color:#fff8e0;text-shadow:0 0 4px #fff,0 0 8px var(--accent)}
 h2{font-size:14px;margin:0 0 4px;color:var(--accent)}
 h3{font-size:13px;margin:14px 0 4px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em}
 .box{border:1px solid var(--line);background:var(--bg-lift);padding:12px 14px}
@@ -497,7 +499,8 @@ render();
   const g=(1+Math.sqrt(5))/2,V=[];
   for(const a of[-1,1])for(const b of[-g,g])V.push([0,a,b],[a,b,0],[b,0,a]);
   for(const v of V){const n=Math.hypot(...v);v[0]/=n;v[1]/=n;v[2]/=n;}
-  function frame(spin){
+  const TWINKLE='.+*+.'; // a sparkle's life, one character per two frames (as on the coffee bean)
+  function frame(spin,sparkles){
     const lum=new Array(BW*BH).fill(null),zb=new Float32Array(BW*BH);
     const cA=Math.cos(spin),sA=Math.sin(spin),cT=Math.cos(.35),sT=Math.sin(.35),L=[-.4,.55,.73];
     for(let th=0;th<2*Math.PI;th+=.025)for(let ph=-Math.PI/2;ph<=Math.PI/2;ph+=.025){
@@ -514,7 +517,9 @@ render();
     for(let r=0;r<BH;r++){
       for(let c=0;c<BW;c++){
         const v=lum[r*BW+c];let ch=' ',k='';
-        if(v&&v[1]){ch=v[0]>.15?':':'.';k='p';} // pentagon patches read as dark panels
+        const sp=!v&&sparkles?sparkles.get(r*BW+c):undefined;
+        if(sp!==undefined){ch=TWINKLE[Math.min(TWINKLE.length-1,sp>>1)];k='s';}
+        else if(v&&v[1]){ch=v[0]>.15?':':'.';k='p';} // pentagon patches read as dark panels
         else if(v){ch=SHADE[Math.max(0,Math.min(11,Math.floor((v[0]+.15)*9.5)))];k=v[0]>.55?'h':v[0]>.15?'m':'l';}
         if(k!==cls){flush();cls=k;}run+=ch;
       }
@@ -523,11 +528,14 @@ render();
     return html;
   }
   const still=matchMedia('(prefers-reduced-motion: reduce)');
-  // Still until hovered; spins only while the pointer is over it.
-  let spin=.6,timer=null;
+  // Still until hovered; spins and twinkles stars around it only while the pointer is over it.
+  let spin=.6,timer=null,sparkles=null;
   el.innerHTML=frame(spin);
-  el.addEventListener('pointerenter',()=>{if(still.matches||timer)return;timer=setInterval(()=>{spin+=.09;el.innerHTML=frame(spin);},70);});
-  el.addEventListener('pointerleave',()=>{clearInterval(timer);timer=null;});
+  el.addEventListener('pointerenter',()=>{if(still.matches||timer)return;sparkles=new Map();timer=setInterval(()=>{
+    sparkles.forEach((age,i)=>age>=TWINKLE.length*2-1?sparkles.delete(i):sparkles.set(i,age+1));
+    for(let n=0;n<2;n++)if(Math.random()<.6)sparkles.set(Math.floor(Math.random()*BW*BH),0);
+    spin+=.09;el.innerHTML=frame(spin,sparkles);},70);});
+  el.addEventListener('pointerleave',()=>{clearInterval(timer);timer=null;sparkles=null;el.innerHTML=frame(spin);});
 })();
 </script>
 </body></html>
