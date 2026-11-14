@@ -27,7 +27,7 @@ test('opponent tweaks fire from inputs', () => {
   for(const s of ['Bypass press','Pass Reception','Short Goalkeeper Distribution','Tackling'])assert.ok(t.includes(s),s);
 });
 test('every plan has roles, settings, and the force switch works', () => {
-  for(const k of Object.keys(PLANS)){assert.ok(PLANS[k].roles.length>=6);assert.ok(PLANS[k].ipShape&&PLANS[k].oop,k);assert.ok(SETS[k],k);assert.equal(recommend(base,k).plan,k);}
+  for(const k of Object.keys(PLANS)){assert.ok(PLANS[k].roles.length>=6);assert.ok(PLANS[k].ipShape&&PLANS[k].oop&&PLANS[k].tab,k);assert.ok(SETS[k],k);assert.equal(recommend(base,k).plan,k);}
 });
 test('wing play -> Wing Play plan with back-five OOP', () => {
   const x=r({style:'wing',formation:'4-4-2'});
@@ -89,4 +89,16 @@ test('your shapes: OOP beats their IP shape, IP beats their OOP shape (falls bac
   const b=r({formation:'4-4-2',oopShape:'5-4-1'});
   assert.equal(b.mine.oop,'4-1-4-1');assert.equal(b.mine.ip,'2-3-5 / 3-2-5');
   assert.ok(b.mine.ipWhy.startsWith('vs their 5-4-1 out of possession'));
+});
+test('Tiki-Taka -> its own counter: go long over the press, compact mid block', () => {
+  const x=r({style:'tiki'});
+  assert.equal(x.plan,'tiki');
+  assert.equal(x.set['Goal Kicks'],'Long');assert.equal(x.set['Build-Up Strategy'],'Bypass Press');
+  assert.equal(x.set['Line of Engagement'],'Mid Block');assert.equal(x.set['Trigger Press'],'Less Often');
+});
+test('home/away: drop a notch away unless they are weaker', () => {
+  const away=r({venue:'away'}),awayWeak=r({venue:'away',strength:'weaker'}),home=r({venue:'home'});
+  assert.ok(away.tweaks.some(t=>t.text.startsWith('Mentality one notch lower')));assert.equal(away.set['Tackling'],'Ease Off');
+  assert.ok(awayWeak.tweaks.some(t=>t.text.startsWith('Away to a weaker side')));assert.ok(!awayWeak.tweaks.some(t=>t.text.startsWith('Mentality one notch lower than at home')));
+  assert.ok(home.tweaks.some(t=>t.why==='Home'));
 });
