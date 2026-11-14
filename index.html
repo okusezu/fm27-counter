@@ -278,8 +278,10 @@ const TWEAKS=[
   // Their line, from the game's Defensive Line staff feedback: higher = vulnerable to direct through balls,
   // more offside, relies on the GK; lower = space in front of the defence and on the edge of the box.
   {when:o=>highLine(o),text:'Pass Reception: Pass Into Space, Passing Directness: More Direct - through balls behind their line; ST as Channel Forward, runs from deep to beat the offside trap',why:'They play a high line',set:{'Pass Reception':'Pass Into Space','Passing Directness':'More Direct'}},
-  {when:o=>o.lineBehaviour==='stepUp',text:'Pass Reception: Pass Into Space - they step up, so time runs from deep and play balls over the top; a striker on the last man gets caught offside',why:'Their line steps up',own:true,set:{'Pass Reception':'Pass Into Space'}},
-  {when:o=>o.lineBehaviour==='dropOff',text:'Pass Reception: Pass To Feet - they drop off, leaving space in front of their defence and on the edge of the box',why:'Their line drops off',own:true,set:{'Pass Reception':'Pass To Feet'}},
+  // Game staff feedback: Step Up More compacts the space but is vulnerable to a well-timed pass in behind;
+  // Drop Off More is safer against balls in behind but concedes more space.
+  {when:o=>o.lineBehaviour==='stepUp',text:'Pass Reception: Pass Into Space - the space is compact, but a well-timed pass in behind beats them; runs from deep, a striker on the last man gets caught offside',why:'Their line steps up',own:true,set:{'Pass Reception':'Pass Into Space'}},
+  {when:o=>o.lineBehaviour==='dropOff',text:'Pass Reception: Pass To Feet - balls in behind rarely work, but they concede more space in front of their defence and on the edge of the box',why:'Their line drops off',own:true,set:{'Pass Reception':'Pass To Feet'}},
   {when:o=>o.line==='lower'||o.line==='muchLower',text:"Pass Reception: Pass To Feet - no room in behind, so get players between their lines and onto the edge of the box; Shots From Distance: Encourage only with good Long Shots",why:'They play a deep line',own:true,set:{'Pass Reception':'Pass To Feet'}},
   {when:o=>o.strength==='stronger',text:'Mentality one notch lower; consider Low Block with 5-4-1 OOP',why:'Stronger opponent (5-4-1: protecting a lead, stronger opponents)',mood:-1},
   {when:o=>o.strength==='weaker',text:'Mentality one notch higher',why:'Weaker opponent',own:true,mood:1},
