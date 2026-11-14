@@ -63,7 +63,7 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
   <label>Pressing intensity<select name="trigger"><option value="">Not sure</option><option value="less">Less Often</option><option value="balanced">Balanced</option><option value="more">More Often</option><option value="muchMore">Much More Often</option></select></label>
   <label>Their line of engagement<select name="engage"><option value="">Not sure</option><option value="low">Low Block</option><option value="mid">Mid Block</option><option value="high">High Press</option></select></label>
   <label>Their defensive line<select name="line"><option value="muchLower">Much Lower</option><option value="lower">Lower</option><option value="standard" selected>Standard</option><option value="higher">Higher</option><option value="muchHigher">Much Higher</option></select></label>
-  <label>Their defensive line behaviour<select name="lineBehaviour"><option value="">Not sure</option><option value="stepUp">Step Up More</option><option value="balanced">Balanced</option><option value="dropOff">Drop Off More</option></select></label>
+  <label>Their defensive line behaviour<select name="lineBehaviour"><option value="stepUp">Step Up More</option><option value="balanced" selected>Balanced</option><option value="dropOff">Drop Off More</option></select></label>
   <label>Compared to you, they are<select name="strength"><option value="weaker">Weaker</option><option value="even" selected>About even</option><option value="stronger">Stronger</option></select></label>
   <label>Home or away?<select name="venue"><option value="">Not sure</option><option value="home">Home</option><option value="away">Away</option></select></label>
   <div id="scout"></div>
@@ -393,6 +393,7 @@ try{const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
   for(const[k,v]of Object.entries(saved))if(form[k])form[k].type==='checkbox'?form[k].checked=v:form[k].value=v;}catch{}
 if(form.style.selectedIndex<0)form.style.value='unknown';
 if(form.line.selectedIndex<0)form.line.value='standard';
+if(form.lineBehaviour.selectedIndex<0)form.lineBehaviour.value='balanced';
 const read=()=>Object.fromEntries([...form.querySelectorAll('select,input')].map(e=>[e.name,e.type==='checkbox'?e.checked:e.value]));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const li=(x,cls)=>`<li${cls?` class="${cls}"`:''}>${esc(x)}</li>`;
