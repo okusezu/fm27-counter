@@ -78,3 +78,8 @@ test('scout report: where they concede decides wide vs central attack', () => {
   assert.equal(r({concedeFrom:'middle'}).set['Attacking Width'],'Narrower');
   checkSet(r({concedeFrom:'crosses'}).set);checkSet(r({concedeFrom:'middle'}).set);
 });
+test('5-2-3 Wide (2 DM, wing-backs + wingers): two strikers vs the back three, wing-play pointer', () => {
+  const x=r({formation:'5-2-3 Wide'});
+  assert.equal(x.shape.ip,'4-4-2');assert.ok(x.shape.why.includes('Wing play'));
+  assert.equal(x.warns.length,0); // 4-1-4-1 / 4-4-2 OOP have >= their 2 central players
+});
