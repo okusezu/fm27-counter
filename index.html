@@ -469,7 +469,7 @@ function render(){
     <ul>${li('Weak spot: '+r.shape.weak)}${li(`Shape counter: IP ${r.shape.ip} / OOP ${r.shape.oop} - ${r.shape.why}`)}${r.warns.map(w=>li(w,'warn')).join('')}</ul>
     ${r.oopC?`<h3>Their ${esc(o.oopShape)} out of possession</h3>
     <ul>${li('Weak spot: '+r.oopC.weak)}${li('Attack it with: '+r.oopC.ip)}${r.oopC.tips.map(t=>li(t)).join('')}
-      ${li('Settings added to the setup sheet: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}`],
+      ${li('Added to your team instructions: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}`],
     ['shape','Mentality and shape',`${big('YOUR MENTALITY AND SHAPE')}
     <div class="shape"><span>Team mentality</span><b>${esc(r.mine.mood)}</b><small>${ul(r.mine.moodWhy)}</small></div>
     <div class="shape"><span>In possession shape</span><b>${esc(r.mine.ip)}</b><small>${ul(r.mine.ipWhy)}</small></div>
@@ -480,7 +480,7 @@ function render(){
       <div><h3>Out of possession</h3>${ul(P.oopI)}</div>
     </div>
     <h3>In-game adjustments</h3>${ul(P.adjust)}`],
-    ['setup','Setup sheet',`${big('SETUP SHEET: YOUR TEAM INSTRUCTIONS')}
+    ['setup','Team instructions',`${big('YOUR TEAM INSTRUCTIONS')}
     <p class="why">Only the instructions you need to change are listed - leave everything else on its default unless you have specific team instructions you like to set.</p>
     <p class="why">The highlighted option in each row is the setting to pick.</p>
     <table><tr><th>Phase</th><th>Instruction</th><th>Options</th></tr>
@@ -489,7 +489,7 @@ function render(){
     <p class="why">Where a setting is a direction (higher, lower), pick the matching notch in game.</p>`],
     ['tweaks','Tweaks',`${big('TWEAKS FOR THIS OPPONENT')}
     ${r.tweaks.length?`<ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}</span></li>`).join('')}</ul>`:'<p class="why">No tweaks - the opposition setup and scout report don\'t call for any.</p>'}
-    ${r.clashes.length?`<h3>Overrides on the setup sheet</h3>${ul(r.clashes,'warn')}`:''}`],
+    ${r.clashes.length?`<h3>Overrides in your team instructions</h3>${ul(r.clashes,'warn')}`:''}`],
   ];
   const cur=tiles.find(t=>t[0]===tile)||tiles[0];
   out.innerHTML=`<div><div class="tabs" role="tablist"><span class="tab label">${esc(STYLE_NAME[fam].toUpperCase())}</span>${tiles.map(([id,name])=>
