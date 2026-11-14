@@ -8,6 +8,10 @@ A counter-tactic helper for Football Manager 27. Describe the opponent (their in
 - tweaks from the scout report (where they score and concede, set pieces, aerial strength, slow defenders, and more)
 - a **setup sheet** listing every Team Instruction with the setting to pick highlighted, and any overrides explained
 
+## Use it
+
+**[Open it in your browser](https://okusezu.github.io/fm27-counter/)**, or download [`index.html`](https://raw.githubusercontent.com/okusezu/fm27-counter/main/index.html) (right-click → Save link as) and double-click it. It's one file, works offline, and needs no install.
+
 ## Screenshots
 
 Against a Control Possession side in a 4-3-3 that presses often: the counter plan, your mentality and shapes, and the tweaks from the scout report.
@@ -25,10 +29,6 @@ The setup sheet: every Team Instruction, with the setting to pick highlighted.
 notetaking match engine experience for counters ⭐
 
 [![Flicking through the notebook of match engine notes behind the counters (click to play)](media/notetaking.jpg)](https://okusezu.github.io/fm27-counter/media/notetaking.mp4)
-
-## Use it
-
-**[Open it in your browser](https://okusezu.github.io/fm27-counter/)**, or download [`index.html`](https://raw.githubusercontent.com/okusezu/fm27-counter/main/index.html) (right-click → Save link as) and double-click it. It's one file, works offline, and needs no install.
 
 ## Good to know
 
