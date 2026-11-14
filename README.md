@@ -33,7 +33,6 @@ notetaking match engine experience for counters ⭐
 ## Good to know
 
 - Built on the FM27 tactics system: separate in and out of possession roles, no duties.
-- Advice marked *"not from the cheat sheets"* is worked out by reasoning rather than taken from the original counter-tactics notes. Test it in a friendly first.
 - Your last inputs are remembered in your browser. The background animation can be turned off with the button at the top.
 
 Spotted a wrong label or have a better counter? Open an issue.

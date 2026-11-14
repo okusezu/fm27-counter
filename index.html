@@ -342,17 +342,15 @@ function render(){
     <h2 class="oppo">ASSESSING THE OPPOSITION&#39;S WEAKNESS</h2>
     <h2>${P.name}</h2>
     <p>${esc(P.blurb)}</p>
-    ${P.own?'<p class="warn">Not from the cheat sheets: worked out here, so test it in a friendly first.</p>':''}
     <p class="why">Why: ${r.reasons.length?esc(r.reasons.join(' · ')):'picked manually'}</p>
     <h3>Their ${esc(o.formation)}</h3>
     <ul>${li('Weak spot: '+r.shape.weak)}${li(`Shape counter: IP ${r.shape.ip} / OOP ${r.shape.oop} - ${r.shape.why}`)}${r.warns.map(w=>li(w,'warn')).join('')}</ul>
     ${r.oopC?`<h3>Their ${esc(o.oopShape)} out of possession</h3>
-    <p class="warn">Weak spot from the formation cheat sheet; how to attack it is worked out here, not from the cheat sheets.</p>
     <ul>${li('Weak spot: '+r.oopC.weak)}${li('Attack it with: '+r.oopC.ip)}${r.oopC.tips.map(t=>li(t)).join('')}
       ${li('Settings added to the setup sheet: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}
   </div></div>
   ${r.tweaks.length||r.clashes.length?`<div class="box">
-    ${r.tweaks.length?`<h3 class="big" style="font-size:20px">Tweaks for this opponent</h3><ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}${t.own?' (not from the cheat sheets)':''}</span></li>`).join('')}</ul>`:''}
+    ${r.tweaks.length?`<h3 class="big" style="font-size:20px">Tweaks for this opponent</h3><ul>${r.tweaks.map(t=>`<li>${esc(t.text)} <span class="why">- ${esc(t.why)}</span></li>`).join('')}</ul>`:''}
     ${r.clashes.length?`<h3>Overrides on the setup sheet</h3>${ul(r.clashes,'warn')}`:''}
   </div>`:''}
   <div class="box">
