@@ -22,7 +22,7 @@ The setup sheet: every Team Instruction, with the setting to pick highlighted.
 
 notetaking match engine experience for counters ⭐
 
-[![Flicking through the notebook of match engine notes behind the counters (click to play)](media/notetaking.jpg)](https://github.com/okusezu/fm27-counter/blob/main/media/notetaking.mp4)
+[![Flicking through the notebook of match engine notes behind the counters (click to play)](media/notetaking.jpg)](https://okusezu.github.io/fm27-counter/media/notetaking.mp4)
 
 ## Use it
 
