@@ -33,7 +33,7 @@ th,td{text-align:left;padding:3px 8px;border-bottom:1px solid var(--line)}th{col
 .tab{flex:0 0 auto;border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;background:var(--bg);color:var(--soft);padding:6px 8px;margin-bottom:-1px;white-space:nowrap;font-size:12px}
 .tab:hover{color:var(--ink)}
 .planab{margin:0 0 2px;font-size:18px;font-weight:700;letter-spacing:.05em;color:var(--ink)}
-.abpick{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+.abpick{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 2px;padding-top:12px;border-top:1px solid var(--line)}
 .pill{border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--soft);padding:5px 8px;font-size:12px}
 .pill:hover{color:var(--ink)}
 .pill.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:700}
@@ -460,8 +460,7 @@ function render(){
   // Each tile is a tab; the orange label names the playstyle being countered (theirs, or the best guess when 'Not sure').
   const tiles=[
     ['weak',"Opposition's weakness",`<h2 class="oppo">ASSESSING THE OPPOSITION&#39;S WEAKNESS</h2>
-    ${pair?`<div class="abpick">${pair.map(k=>`<button type="button" class="pill${k===r.plan?' on':''}" data-plan="${k}" aria-pressed="${k===r.plan}">${ab(k)}</button>`).join('')}</div>
-    <p class="planab">${r.plan===pair[0]?'PLAN A':'PLAN B'}</p>`:''}
+    ${pair?`<p class="planab">${r.plan===pair[0]?'PLAN A':'PLAN B'}</p>`:''}
     <h2>${pair?P.name:P.name.replace(' - A: ',' - ')}</h2>
     <p>${esc(pair?P.blurb:P.blurb.replace('Plan A: ',''))}</p>
     <p class="why">Why: ${r.reasons.length?esc(r.reasons.join(' · ')):'picked manually'}</p>
@@ -469,7 +468,8 @@ function render(){
     <ul>${li('Weak spot: '+r.shape.weak)}${li(`Shape counter: IP ${r.shape.ip} / OOP ${r.shape.oop} - ${r.shape.why}`)}${r.warns.map(w=>li(w,'warn')).join('')}</ul>
     ${r.oopC?`<h3>Their ${esc(o.oopShape)} out of possession</h3>
     <ul>${li('Weak spot: '+r.oopC.weak)}${li('Attack it with: '+r.oopC.ip)}${r.oopC.tips.map(t=>li(t)).join('')}
-      ${li('Added to your team instructions: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}`],
+      ${li('Added to your team instructions: '+Object.entries(r.oopC.set).map(([k,v])=>k+' '+v).join(', '),'why')}</ul>`:''}
+    ${pair?`<div class="abpick">${pair.map(k=>`<button type="button" class="pill${k===r.plan?' on':''}" data-plan="${k}" aria-pressed="${k===r.plan}">${ab(k)}</button>`).join('')}</div>`:''}`],
     ['shape','Mentality and shape',`${big('YOUR MENTALITY AND SHAPE')}
     <div class="shape"><span>Team mentality</span><b>${esc(r.mine.mood)}</b><small>${ul(r.mine.moodWhy)}</small></div>
     <div class="shape"><span>In possession shape</span><b>${esc(r.mine.ip)}</b><small>${ul(r.mine.ipWhy)}</small></div>
