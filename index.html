@@ -11,6 +11,7 @@ html{background:var(--bg)}body{margin:0;color:var(--ink);font:13px/1.5 var(--mon
 main{display:grid;grid-template-columns:300px 1fr;gap:16px;max-width:1200px;margin:0 auto;padding:16px}
 @media(max-width:800px){main{grid-template-columns:1fr}}
 h1{font-size:15px;margin:0 0 12px;color:var(--accent)}
+.ball{margin:0 0 10px;font-size:13px;line-height:1.15;color:var(--ink)}
 h2{font-size:14px;margin:0 0 4px;color:var(--accent)}
 h3{font-size:13px;margin:14px 0 4px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em}
 .box{border:1px solid var(--line);background:var(--bg-lift);padding:12px 14px}
@@ -44,6 +45,13 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
 <main>
 <form id="form" onsubmit="return false">
 <div class="box" style="margin-bottom:16px">
+  <pre class="ball" aria-hidden="true">     .-"""-.
+   .' \___/ '.
+  /\__/   \__/\
+ |  / \___/ \  |
+  \/\_/   \_/\/
+   '. /___\ .'
+     '-...-'</pre>
   <h1>Spygate - Your FM27 Assistant Manager</h1>
   <button type="button" id="bgToggle" aria-pressed="true" style="margin:-4px 0 0">Background animation: on</button>
 </div>
