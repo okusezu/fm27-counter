@@ -199,3 +199,7 @@ test('5-3-2 DM WB in possession + 5-2-1-2 DM AM out of possession', () => {
   assert.equal(x.shape.weak,'Wing-backs carry the whole flank alone');
   assert.equal(r({formation:'5-3-2 DM WB',mentality:'defensive'}).ranked.find(p=>p.key.startsWith('catenaccio')).reasons.some(w=>w.includes('5-3-2 DM WB')),true);
 });
+test('4-1-2-1-2 DM WB in possession: no count-the-middle warning from its own counter', () => {
+  const x=r({formation:'4-1-2-1-2 DM WB'});
+  assert.equal(x.shape.oop,'3-4-2-1');assert.equal(x.warns.some(w=>w.includes('shape counter')),false);
+});
