@@ -27,6 +27,7 @@ select{display:block;width:100%;margin-top:3px;background:var(--bg);color:var(--
 .chips button:hover{color:var(--ink);border-color:var(--soft)}
 .chips button.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:700}
 .chips button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.chips .br{flex-basis:100%;height:0} /* new row for the next back-line group */
 .field{margin:0 0 14px;color:var(--soft)}
 .field select{display:none}
 .chk{display:flex;gap:8px;align-items:flex-start}
@@ -100,7 +101,6 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
   <label>Their passing directness<select name="directness"><option value="muchShorter">Much Shorter</option><option value="shorter">Shorter</option><option value="standard" selected>Standard</option><option value="moreDirect">More Direct</option><option value="muchMoreDirect">Much More Direct</option></select></label>
   <label>Their tempo<select name="tempo"><option value="muchLower">Much Lower</option><option value="lower">Lower</option><option value="standard" selected>Standard</option><option value="higher">Higher</option><option value="muchHigher">Much Higher</option></select></label>
   <label>Their defensive line<select name="line"><option value="muchLower">Much Lower</option><option value="lower">Lower</option><option value="standard" selected>Standard</option><option value="higher">Higher</option><option value="muchHigher">Much Higher</option></select></label>
-  <label>Their defensive line behaviour<select name="lineBehaviour"><option value="stepUp">Step Up More</option><option value="balanced" selected>Balanced</option><option value="dropOff">Drop Off More</option></select></label>
   <label>Compared to you, they are<select name="strength"><option value="weaker">Weaker</option><option value="even" selected>About even</option><option value="stronger">Stronger</option></select></label>
   <label>Home or away?<select name="venue"><option value="">Not sure</option><option value="home">Home</option><option value="away">Away</option></select></label>
   <div id="scout"></div>
@@ -219,14 +219,14 @@ const SHAPES={
   '3-4-3':{mid:2,weak:'Space behind the wing-backs',ip:'4-4-2',oop:'4-4-2',why:'Back three: two strikers occupy their CBs'},
   '5-2-1-2 DM AM':{mid:3,weak:'Wing-backs carry the whole flank alone',ip:'4-3-3',oop:'4-1-4-1',
     why:'Narrow, width only from the wing-backs: wingers + full-backs make 2v1s on each flank, three CMs match their two DMs + AM, and the DM screens their AM and two strikers'},
-  // 5-3-2 DM WB: weak spot = the sheet's 3-5-2 row (same three CMs + wing-backs); counter as 5-2-1-2 DM AM (own).
-  '5-3-2 DM WB':{mid:3,weak:'Wing-backs carry the whole flank alone',ip:'4-3-3',oop:'4-1-4-1',
-    why:'Narrow, width only from the wing-backs: wingers + full-backs make 2v1s on each flank, three CMs match their DM + two CMs, and the DM screens their two strikers'},
   // 4-1-2-1-2 DM WB (narrow diamond, wing-backs for width): own. OOP 3-4-2-1 so you match their four central players.
   '4-1-2-1-2 DM WB':{mid:4,weak:'Narrow diamond: width only from the wing-backs',ip:'4-3-3',oop:'3-4-2-1',
     why:'Wingers + full-backs make 2v1s on each flank; out of possession a back three handles their two strikers and two DMs + two No.10s match their diamond'},
   '5-2-3 Wide':{mid:2,weak:'Space behind the wing-backs',ip:'4-4-2',oop:'4-4-2',
     why:'Back three: two strikers occupy their CBs. Their wing-backs + wingers double up on both flanks - if they live on crosses, set their style to Wing play'},
+  // 5-2-3 Narrow (front three tucked in, wing-backs give all the width): own, not from the sheets.
+  '5-2-3 Narrow':{mid:2,weak:'Flanks: wing-backs alone out wide, the front three stay central',ip:'4-3-3',oop:'4-1-4-1',
+    why:'Wingers + full-backs make 2v1s on their wing-backs; three CMs win the middle 3v2, and the DM screens the gaps their narrow front three play in'},
   '3-4-2-1':{mid:4,weak:'Space behind the wing-backs',ip:'4-3-3',oop:'4-1-4-1',why:'No.10-heavy shape: your DM blocks passes between the lines'},
   '5-3-2':{mid:3,weak:'Flanks open in front of the wing-backs',ip:'2-3-5',oop:'4-4-2',why:'Deep block: five across the front pins all their defenders; keep 2 CBs + DM home'},
   '5-4-1':{mid:2,weak:'Few out balls; they get pinned for long spells',ip:'2-3-5',oop:'4-4-2',why:'Deep block: five across the front pins all their defenders; keep 2 CBs + DM home'},
@@ -235,33 +235,34 @@ const SHAPES={
 // Every Team Instruction. Labels: fmscout FM26 guide (pre-release); ok:true = seen in FM27 tactic posts.
 // Wrong label in your game? Fix it here; the test checks every plan setting still exists.
 const TI=[
+  // In the order FM27 shows them on each Instructions screen: left to right, row by row.
   ['In possession','Passing Directness',['Much Shorter','Shorter','Standard','More Direct','Much More Direct']],
   ['In possession','Tempo',['Much Lower','Lower','Standard','Higher','Much Higher']],
-  ['In possession','Time Wasting',['Less Often','Standard','More Often']],
-  ['In possession','Attacking Transition',['Counter-Attack','Standard','Patient Build-Up'],true],
   ['In possession','Attacking Width',['Much Narrower','Narrower','Standard','Wider','Much Wider']],
+  ['In possession','Attacking Transition',['Counter-Attack','Standard','Patient Build-Up'],true],
   ['In possession','Creative Freedom',['More Disciplined','Balanced','More Expressive']],
+  ['In possession','Time Wasting',['Less Often','Standard','More Often']],
   ['In possession','Play for Set Pieces',['Keep Ball in Play','Standard','Play for Set Pieces']],
-  ['Build-up','Build-Up Strategy',['Play Through Press','Balanced','Bypass Press'],true],
-  ['Build-up','Goal Kicks',['Short','Mixed','Long']],
-  ['Build-up','GK Distribution (Speed)',['Slow Pace Down','Balanced','Distribute Quickly']],
-  ['Build-up','GK Distribution',['Centre-Backs','Full-Backs','Midfielders','Forwards']],
-  ['Progression','Pass Reception',['Pass To Feet','Balanced','Pass Into Space']],
-  ['Progression','Dribbling',['Discourage','Balanced','Encourage']],
-  ['Progression','Supporting Runs',['Both Flanks','Balanced','One Flank']],
-  ['Progression','Progress Through',['Balanced','Left','Middle','Right']],
-  ['Final third','Patience',['Hit Early Crosses','Standard','Work Ball Into Box']],
-  ['Final third','Shots From Distance',['Discourage','Balanced','Encourage']],
-  ['Final third','Crossing Style',['Balanced','Floated Crosses','Whipped Crosses','Low Crosses']],
+  ['In possession','Patience',['Hit Early Crosses','Standard','Work Ball Into Box']],
+  ['In possession','Shots From Distance',['Discourage','Balanced','Encourage']],
+  ['In possession','Crossing Style',['Balanced','Floated Crosses','Whipped Crosses','Low Crosses']],
+  ['In possession','Dribbling',['Discourage','Balanced','Encourage']],
+  ['In possession','Supporting Runs',['Both Flanks','Balanced','One Flank']],
+  ['In possession','Progress Through',['Balanced','Left','Middle','Right']],
+  ['In possession','Pass Reception',['Pass To Feet','Balanced','Pass Into Space']],
+  ['In possession','Build-Up Strategy',['Play Through Press','Balanced','Bypass Press'],true],
+  ['In possession','Goal Kicks',['Short','Mixed','Long']],
+  ['In possession','GK Distribution (Speed)',['Slow Pace Down','Balanced','Distribute Quickly']],
+  ['In possession','GK Distribution',['Centre-Backs','Full-Backs','Midfielders','Forwards']],
   ['Out of possession','Line of Engagement',['High Press','Mid Block','Low Block'],true],
   ['Out of possession','Defensive Line',['Much Lower','Lower','Standard','Higher','Much Higher']],
   ['Out of possession','Defensive Line Behaviour',['Step Up More','Balanced','Drop Off More']],
   ['Out of possession','Trigger Press',['Less Often','Balanced','More Often','Much More Often'],true],
   ['Out of possession','Defensive Transition',['Counter-Press','Standard','Regroup'],true],
   ['Out of possession','Tackling',['Stay On Feet','Standard','Get Stuck In']],
-  ['Pressing / blocks','Pressing Trap',['Balanced','Trap Inside','Trap Outside'],true],
-  ['Pressing / blocks','Short Goalkeeper Distribution',['No','Yes']],
-  ['Pressing / blocks','Cross Engagement',['Invite Crosses','Balanced','Stop Crosses']],
+  ['Out of possession','Short Goalkeeper Distribution',['No','Yes']],
+  ['Out of possession','Pressing Trap',['Balanced','Trap Inside','Trap Outside'],true],
+  ['Out of possession','Cross Engagement',['Invite Crosses','Balanced','Stop Crosses']],
 ].map(([phase,name,opts,ok])=>({phase,name,opts,ok:!!ok}));
 // Each plan's bullets turned into settings on that list. Anything not set: leave the default.
 const SETS={
@@ -356,8 +357,6 @@ const TWEAKS=[
   {when:o=>o.tempo==='higher'||o.tempo==='muchHigher',text:"Defensive Transition: Regroup - they attack before you're set, so get back into shape; their rushed passes go astray, so let them make the mistakes",why:'They play a high tempo',own:true,set:{'Defensive Transition':'Regroup'}},
   // Game staff feedback: Step Up More compacts the space but is vulnerable to a well-timed pass in behind;
   // Drop Off More is safer against balls in behind but concedes more space.
-  {when:o=>o.lineBehaviour==='stepUp',text:'Pass Reception: Pass Into Space - the space is compact, but a well-timed pass in behind beats them; runs from deep, a striker on the last man gets caught offside',why:'Their line steps up',own:true,set:{'Pass Reception':'Pass Into Space'}},
-  {when:o=>o.lineBehaviour==='dropOff',text:'Pass Reception: Pass To Feet - balls in behind rarely work, but they concede more space in front of their defence and on the edge of the box',why:'Their line drops off',own:true,set:{'Pass Reception':'Pass To Feet'}},
   {when:o=>o.line==='lower'||o.line==='muchLower',text:"Pass Reception: Pass To Feet - no room in behind, so get players between their lines and onto the edge of the box; Shots From Distance: Encourage only with good Long Shots",why:'They play a deep line',own:true,set:{'Pass Reception':'Pass To Feet'}},
   {when:o=>o.strength==='stronger',text:'Mentality one notch lower; consider Low Block with 5-4-1 OOP',why:'Stronger opponent (5-4-1: protecting a lead, stronger opponents)',mood:-1},
   {when:o=>o.strength==='weaker',text:'Mentality one notch higher',why:'Weaker opponent',own:true,mood:1},
@@ -408,7 +407,7 @@ function score(o){
   if(['4-2-4','2-3-5','3-4-3','4-4-2'].includes(o.formation))add('route',2,`${o.formation} commits players forward`);
   if(defensive)add('bus',3,'Defensive mentality');
   if(['5-4-1','5-3-2'].includes(o.formation))add('bus',2,`${o.formation} is a deep block`);
-  if(defensive&&['3-5-2','5-3-2','3-4-2-1','5-2-1-2 DM AM','5-3-2 DM WB'].includes(o.formation))add('catenaccio',2,`Defensive with a back three (${o.formation})`);
+  if(defensive&&['3-5-2','5-3-2','3-4-2-1','5-2-1-2 DM AM'].includes(o.formation))add('catenaccio',2,`Defensive with a back three (${o.formation})`);
   if(o.engage==='low')add('bus',1,'Low Block');
   if(o.engage==='high')add('gegen',1,'High Press');
   if(o.line==='lower'||o.line==='muchLower')add('bus',1,'Deep defensive line');
@@ -467,9 +466,9 @@ document.getElementById('scout').innerHTML='<h3>Scout report</h3>'+askList.map((
 form.oopShape.innerHTML='<option value="">Not sure</option>'+Object.keys(OOPS).map(f=>`<option>${f}</option>`).join('');
 try{const saved=JSON.parse(localStorage.getItem(KEY)||'{}');
   for(const[k,v]of Object.entries(saved))if(form[k])form[k].type==='checkbox'?form[k].checked=v:form[k].value=v;}catch{}
+if(form.formation.selectedIndex<0)form.formation.value='5-3-2'; // old saves: 5-3-2 DM WB was removed
 if(form.style.selectedIndex<0)form.style.value='unknown';
 if(form.line.selectedIndex<0)form.line.value='standard';
-if(form.lineBehaviour.selectedIndex<0)form.lineBehaviour.value='balanced';
 if(form.engage.selectedIndex<0)form.engage.value='mid';
 if(form.tempo.selectedIndex<0)form.tempo.value='standard';
 if(form.trigger.selectedIndex<0)form.trigger.value='balanced';
@@ -481,7 +480,15 @@ form.querySelectorAll('label>select').forEach(sel=>{
   const lab=sel.parentElement,field=document.createElement('div'),title=document.createElement('div');
   field.className='field';title.textContent=lab.textContent.replace(sel.textContent,'').trim();
   const chips=document.createElement('div');chips.className='chips';chips.setAttribute('role','group');chips.setAttribute('aria-label',title.textContent);
-  chips.innerHTML=[...sel.options].map(o=>`<button type="button" data-v="${o.value}">${o.text}</button>`).join('');
+  // Formations: numbers only ('5-2-1-2 DM AM' -> '5-2-1-2'), unless two would then read the same.
+  const keep=['5-2-3 Wide','5-2-3 Narrow']; // keeps its wording (user)
+  const short=t=>!keep.includes(t)&&/^\d(-\d)+\b/.test(t)?t.match(/^\d(-\d)+/)[0]:t,opts=[...sel.options];
+  const shown=o=>opts.filter(x=>short(x.text)===short(o.text)).length>1?o.text:short(o.text);
+  // Formations grouped by the back line, one row each: back four, back three, back five, then the rest ('Not sure' stays first).
+  const back=o=>{const d=/^\d-/.test(o.text)?+o.text[0]:0;return d?[0,5,4,2,1,3][d]:0;};
+  const sorted=/^\d-/.test(opts.at(-1).text)?[...opts].sort((a,b)=>back(a)-back(b)):opts;
+  chips.innerHTML=sorted.map((o,i)=>(i&&back(o)!==back(sorted[i-1])?'<span class="br"></span>':'')+
+    `<button type="button" data-v="${o.value}"${shown(o)!==o.text?` title="${o.text}"`:''}>${shown(o)}</button>`).join('');
   chips.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||sel.value===b.dataset.v)return;
     sel.value=b.dataset.v;form.dispatchEvent(new Event('change'));});
   field.append(title,sel,chips);lab.replaceWith(field);
@@ -521,7 +528,7 @@ function render(){
     <h3>In-game adjustments</h3>${ul(P.adjust)}`],
     ['setup','Team instructions',`${big('YOUR TEAM INSTRUCTIONS')}
     <p class="why">Only the instructions you need to change are listed - leave everything else on its default unless you have specific team instructions you like to set.</p>
-    <p class="why">The highlighted option in each row is the setting to pick.</p>
+    <p class="why">The highlighted option in each row is the setting to pick. They're listed in the order they appear in FM27's In Possession and Out of Possession screens, left to right, row by row.</p>
     <table><tr><th>Phase</th><th>Instruction</th><th>Options</th></tr>
       ${TI.filter(t=>r.set[t.name]).map(t=>{const s=r.set[t.name];return `<tr><td>${t.phase}</td><td>${t.name}</td>
         <td>${t.opts.map(x=>x===s?`<span class="tag">${x}</span>`:x).join(' · ')}</td></tr>`;}).join('')}</table>

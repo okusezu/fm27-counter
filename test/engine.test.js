@@ -147,10 +147,7 @@ test('their defensive line: through balls vs a high line, to feet vs a deep one'
   assert.ok(!r({line:'standard'}).tweaks.some(t=>/line$/.test(t.why)));
 });
 
-test('their defensive line behaviour', () => {
-  assert.equal(r({lineBehaviour:'dropOff'}).set['Pass Reception'],'Pass To Feet');
-  assert.ok(r({lineBehaviour:'stepUp'}).tweaks.some(t=>t.why==='Their line steps up'));
-  assert.ok(!r({lineBehaviour:'balanced'}).tweaks.some(t=>t.why.startsWith('Their line')));
+test('your defensive line behaviour vs direct counters', () => {
   assert.equal(r({style:'direct'}).set['Defensive Line Behaviour'],'Drop Off More');
 });
 
@@ -193,11 +190,11 @@ test('Park the Bus and Catenaccio: Plan B (press) only with pressing legs, never
     assert.equal(recommend({...base,style:k},k+'B').plan,k+'B'); // tab click
   }
 });
-test('5-3-2 DM WB in possession + 5-2-1-2 DM AM out of possession', () => {
-  const x=r({formation:'5-3-2 DM WB',oopShape:'5-2-1-2 DM AM'});
+test('5-2-1-2 DM AM in and out of possession', () => {
+  const x=r({formation:'5-2-1-2 DM AM',oopShape:'5-2-1-2 DM AM'});
   assert.equal(x.mine.ip,'4-3-3');assert.equal(x.mine.oop,'4-1-4-1');assert.equal(x.warns.length,0);
   assert.equal(x.shape.weak,'Wing-backs carry the whole flank alone');
-  assert.equal(r({formation:'5-3-2 DM WB',mentality:'defensive'}).ranked.find(p=>p.key.startsWith('catenaccio')).reasons.some(w=>w.includes('5-3-2 DM WB')),true);
+  assert.equal(r({formation:'5-2-1-2 DM AM',mentality:'defensive'}).ranked.find(p=>p.key.startsWith('catenaccio')).reasons.some(w=>w.includes('5-2-1-2 DM AM')),true);
 });
 test('4-1-2-1-2 DM WB in possession: no count-the-middle warning from its own counter', () => {
   const x=r({formation:'4-1-2-1-2 DM WB'});
