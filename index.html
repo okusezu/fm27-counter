@@ -21,6 +21,14 @@ h3{font-size:13px;margin:14px 0 4px;color:var(--soft);text-transform:uppercase;l
 .box{border:1px solid var(--line);background:var(--bg-lift);padding:12px 14px}
 label{display:block;margin:0 0 10px;color:var(--soft)}
 select{display:block;width:100%;margin-top:3px;background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:4px;font:inherit}
+/* Side panel: every dropdown is shown as a row of buttons (the hidden <select> still holds the value). */
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.chips button{border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--soft);padding:4px 8px;font-size:12px;line-height:1.3}
+.chips button:hover{color:var(--ink);border-color:var(--soft)}
+.chips button.on{background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:700}
+.chips button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.field{margin:0 0 14px;color:var(--soft)}
+.field select{display:none}
 .chk{display:flex;gap:8px;align-items:flex-start}
 .chk input{accent-color:var(--accent);margin-top:3px}
 ul{margin:0;padding-left:18px}li{margin:2px 0}
@@ -51,6 +59,12 @@ h3.big{font-size:16px;color:var(--accent);margin-top:0}
 .shape b{font-size:18px;color:var(--accent)}
 .shape small{display:block;color:var(--muted);font-size:12px;line-height:1.4;margin-top:2px}
 .shape small ul{margin:2px 0;padding-left:16px}
+/* First visit: a one-off note pointing at the result tabs */
+#intro{max-width:420px;border:1px solid var(--accent);background:var(--bg-lift);color:var(--ink);padding:16px 18px;font:inherit}
+#intro::backdrop{background:rgba(2,10,20,.7)}
+#intro h2{font-size:15px;margin:0 0 8px}
+#intro p{margin:0 0 10px}
+#intro button{margin-top:4px;color:var(--bg);background:var(--accent);border-color:var(--accent);font-weight:700;padding:4px 14px}
 #out{display:grid;gap:16px;align-content:start;min-width:0}
 #out>div{min-width:0} /* let the tab bar scroll instead of widening the page */
 </style></head><body>
@@ -460,6 +474,19 @@ if(form.engage.selectedIndex<0)form.engage.value='mid';
 if(form.tempo.selectedIndex<0)form.tempo.value='standard';
 if(form.trigger.selectedIndex<0)form.trigger.value='balanced';
 if(form.directness.selectedIndex<0)form.directness.value='standard';
+// Dropdowns -> buttons: each <select> stays (hidden) as the value store, so saving and read() don't change.
+const syncChips=()=>form.querySelectorAll('.chips').forEach(c=>{const v=c.previousElementSibling.value;
+  c.querySelectorAll('button').forEach(b=>{const on=b.dataset.v===v;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);});});
+form.querySelectorAll('label>select').forEach(sel=>{
+  const lab=sel.parentElement,field=document.createElement('div'),title=document.createElement('div');
+  field.className='field';title.textContent=lab.textContent.replace(sel.textContent,'').trim();
+  const chips=document.createElement('div');chips.className='chips';chips.setAttribute('role','group');chips.setAttribute('aria-label',title.textContent);
+  chips.innerHTML=[...sel.options].map(o=>`<button type="button" data-v="${o.value}">${o.text}</button>`).join('');
+  chips.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||sel.value===b.dataset.v)return;
+    sel.value=b.dataset.v;form.dispatchEvent(new Event('change'));});
+  field.append(title,sel,chips);lab.replaceWith(field);
+});
+form.addEventListener('change',syncChips);syncChips();
 const read=()=>Object.fromEntries([...form.querySelectorAll('select,input')].map(e=>[e.name,e.type==='checkbox'?e.checked:e.value]));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const li=(x,cls)=>`<li${cls?` class="${cls}"`:''}>${esc(x)}</li>`;
@@ -529,6 +556,16 @@ function align(){
 const render0=render;render=()=>{render0();align();};
 addEventListener('resize',align);phone.addEventListener?.('change',()=>render());document.fonts?.ready.then(align);
 render();
+// First visit (side-by-side layout only; phones have no tabs): point people at the tabs on the right.
+(()=>{const SEEN='fm27counter.introSeen';let seen=false;try{seen=!!localStorage.getItem(SEEN);}catch{}
+  if(seen||phone.matches)return;
+  const d=document.createElement('dialog');d.id='intro';
+  d.innerHTML=`<h2>Welcome to Spygate</h2>
+  <p>Set up the opposition on the left. Your counter plan appears on the right.</p>
+  <p>Use the <b>tabs along the top of the right-hand panel</b> (Opposition's weakness, Mentality and shape, IP / OOP tips, Team instructions, Tweaks) to see each part of the plan.</p>
+  <form method="dialog"><button>Got it</button></form>`;
+  d.addEventListener('close',()=>{try{localStorage.setItem(SEEN,'1');}catch{}});
+  document.body.append(d);d.showModal();})();
 </script>
 <script>
 // Background: soccer balls drifting on a character grid, leaving sparkles. ~12fps for a terminal feel.
